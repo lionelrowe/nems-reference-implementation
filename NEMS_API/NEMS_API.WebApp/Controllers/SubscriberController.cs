@@ -18,6 +18,27 @@ namespace NEMS_API.Controllers
             _subscribeService = subscribeService;
         }
 
+        /// <summary>
+        /// Gets a resource by the supplied id.
+        /// </summary>
+        /// <returns>A FHIR Resource</returns>
+        /// <response code="200">Returns the FHIR Resource</response>
+        [ProducesResponseType(typeof(Resource), 200)]
+        [HttpGet("{subscriptionId}")]
+        public async Task<IActionResult> Read(string subscriptionId)
+        {
+
+            //var result = await someService.Get(subscriptionId);
+
+            //TODO: check if 404 or other
+            //if (result.ResourceType == ResourceType.OperationOutcome)
+            //{
+            //    return NotFound(result);
+            //}
+
+            return Ok("result");
+        }
+
         // POST /Subscription
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Resource resource)
@@ -41,6 +62,26 @@ namespace NEMS_API.Controllers
             }
 
             return Created("TODO:url", null);
+        }
+
+        /// <summary>
+        /// Deletes a record that was previously persisted into a datastore.
+        /// </summary>
+        /// <returns>The OperationOutcome</returns>
+        /// <response code="200">Returns OperationOutcome</response>
+        [HttpDelete("{subscriptionId}")]
+        public async Task<IActionResult> Delete(string subscriptionId)
+        {
+            //var result = await someService.Get(subscriptionId);
+
+            //if (result != null && result.Success)
+            //{
+                //Assume success
+                return Ok();
+            //}
+
+            //TODO: check if 404 or other
+            //return NotFound(result);
         }
 
     }
