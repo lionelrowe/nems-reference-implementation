@@ -8,7 +8,9 @@ namespace NEMS_API.Models.Core
     {
         public SubscriptionCriteria(string criteria)
         {
-            var criteriaUri = new Uri(criteria);
+            //I'm assuming there is always a query and path is relative
+            var criteriaSplit = criteria.IndexOf("?");
+            var criteriaUri = new UriBuilder("http", "fakedomain.com", 80, criteria.Substring(0, criteriaSplit), criteria.Substring(criteriaSplit)).Uri;
             var criteriaQuery = !string.IsNullOrWhiteSpace(criteriaUri.Query) ? criteriaUri.Query.Substring(1).Split("&").ToList() : null;
 
             Base = criteriaUri.AbsolutePath;

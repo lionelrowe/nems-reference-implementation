@@ -56,6 +56,7 @@ namespace NEMS_API
                 options.HeaderProfileUrl = Configuration.GetSection("NEMSAPI:HeaderProfileUrl").Value;
                 options.SubscriptionCriteriaRules = SetList(Configuration.GetSection("NEMSAPI:SubscriptionCriteriaRules").Value);
                 options.ServiceTypeCodes = SetList(Configuration.GetSection("NEMSAPI:ServiceTypeCodes").Value);
+                options.SkipSubscriptionCriteria = bool.Parse(Configuration.GetSection("NEMSAPI:SkipSubscriptionCriteria").Value);
             });
 
             services.AddTransient<IValidationHelper, ValidationHelper>();

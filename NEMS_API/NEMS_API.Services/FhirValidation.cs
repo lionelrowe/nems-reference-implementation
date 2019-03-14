@@ -105,6 +105,12 @@ namespace NEMS_API.Services
 
         public OperationOutcome ValidateSubscriptionCriteria(string criteria)
         {
+
+            if (_nemsApiSettings.SkipSubscriptionCriteria)
+            {
+                return OperationOutcomeFactory.CreateOk();
+            }
+
             var ruleSet = ParseSubscriptionCriteriaRules(_nemsApiSettings.SubscriptionCriteriaRules);
 
             if (ruleSet == null || ruleSet.Rules.Count == 0)
@@ -135,6 +141,7 @@ namespace NEMS_API.Services
             {
                 //validate other components
                 //TODO: pull search parameter rules from profile
+                //TODO: upgrade app settings to include api setting or external valueset list etc
 
                 foreach(var rule in ruleSet.Rules)
                 {
@@ -143,24 +150,53 @@ namespace NEMS_API.Services
                         var serviceType = subscriptionCriteria.Parameters.FirstOrDefault(x => x.Key.ToLowerInvariant() == "servicetype");
                         if (string.IsNullOrEmpty(serviceType.Key) || !_nemsApiSettings.ServiceTypeCodes.Contains(serviceType.Value))
                         {
-                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria.servicetype contains an invalid code.");
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria servicetype contains an invalid code.");
                             break;
                         }
                     }
                     else
                     {
-                        var param = subscriptionCriteria.Parameters.FirstOrDefault(x => x.Key.ToLowerInvariant() == rule.Key.ToLowerInvariant());
-                        if (rule.Min > 0 && (string.IsNullOrEmpty(param.Key)))
-                        {
+                        //Find all criteria params that match rule key
+                        var param = subscriptionCriteria.Parameters.Where(x => x.Key.ToLowerInvariant() == rule.Key.ToLowerInvariant());
 
+                        //Must contain exactly x of param type
+                        if (rule.Min == rule.Max && param.Count() != rule.Max)
+                        {
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain exactly {rule.Min} {rule.Key} parameters.");
+                            break;
+                        }
+
+                        //Must have a least one of param type
+                        if (rule.Min > 0 && param.Count() < 1)
+                        {
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain at least {rule.Min} {rule.Key} parameter.");
+                            break;
+                        }
+
+                        //Check that total of param type does not exceed max
+                        if (param.Count() > rule.Max)
+                        {
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain a maximum of {rule.Max} {rule.Key} parameters.");
+                            break;
+                        }
+
+                        //If we require at least one of param type make sure its value is not null
+                        if (rule.Min > 0 && !param.All(x => !string.IsNullOrEmpty(x.Value)))
+                        {
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameters {rule.Key} must contain values.");
+                            break;
+                        }
+
+
+                        //If param type should be exact value in rule check param values match this
+                        if (rule.ExactValue && !param.All(x => !string.IsNullOrEmpty(x.Value) && x.Value == rule.Value))
+                        {
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameter value for {rule.Key} must be {rule.Value}.");
+                            break;
                         }
                     }
                 }
-
-
             }
-
-
 
             if (!criteriaSuccess)
             {
@@ -193,16 +229,18 @@ namespace NEMS_API.Services
                     var ruleKey = ruleKV.ElementAt(0);
                     var ruleValue = ruleKV.ElementAt(1);
 
-                    var isZeroOrMore = ruleValue.Equals("+");
+                    var isZeroOrMore = ruleValue.StartsWith("+");
                     var isAtLeastOneOrMore = ruleValue.StartsWith("#") && ruleValue.EndsWith("+");
-                    var hasMax = ruleValue.StartsWith("+") && ruleValue.EndsWith("#");
+                    var hasMax = ruleValue.EndsWith("#");
+                    var isExactValue = !(ruleValue.Contains("-") || ruleValue.Contains("+") || ruleValue.Contains("#"));
 
-                    var totalParam = ruleValue.Count(x => x.Equals("#"));
+                    var totalParam = ruleValue.Count(x => x.Equals('#'));
 
                     var criteriaRule = new SubscriptionCriteriaRule
                     {
                         Key = ruleKey,
-                        Value = ruleValue.Contains("-") || ruleValue.Contains("+") || ruleValue.Contains("#") ? "*" : ruleValue,
+                        Value = isExactValue ? ruleValue : "*",
+                        ExactValue = isExactValue,
                         Min = isZeroOrMore ? 0 : totalParam,
                         Max = hasMax ? totalParam : 100
                     };

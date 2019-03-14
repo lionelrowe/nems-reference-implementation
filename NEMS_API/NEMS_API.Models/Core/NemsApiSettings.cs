@@ -22,5 +22,7 @@ namespace NEMS_API.Models.Core
         public List<string> SubscriptionCriteriaRules { get; set; }
 
         public List<string> ServiceTypeCodes { get; set; }
+
+        public bool SkipSubscriptionCriteria { get; set; }
     }
 }
