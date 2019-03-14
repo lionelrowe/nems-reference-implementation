@@ -1,0 +1,11 @@
+/**/.vs
+/**/*/obj
+/**/*/bin
+
+!*.gitkeep
+
+/**/node_modules
+/**/test/coverage
+/**/*.log
+/**/*.pubxml
+/**/*.user
