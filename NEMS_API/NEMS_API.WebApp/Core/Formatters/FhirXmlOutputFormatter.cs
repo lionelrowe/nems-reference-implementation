@@ -38,7 +38,7 @@ namespace NEMS_API.WebApp.Core.Formatters
 
             if(context.ObjectType == typeof(OperationOutcome) || typeof(Resource).IsAssignableFrom(context.ObjectType))
             {
-                var resource = new FhirXmlSerializer().SerializeToString(context.Object as Resource);
+                var resource = new FhirXmlSerializer(new SerializerSettings { Pretty = true }).SerializeToString(context.Object as Resource);
 
                 buffer.Append(resource);
             }

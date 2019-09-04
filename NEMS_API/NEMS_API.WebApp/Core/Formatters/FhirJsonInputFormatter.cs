@@ -43,20 +43,18 @@ namespace NEMS_API.WebApp.Core.Formatters
 
                 try
                 {
-                    //TODO: parse json
+                    var settings = new ParserSettings
+                    {
+                        AllowUnrecognizedEnums = true,
+                        AcceptUnknownMembers = false
+                    };
 
-                    //TODO: create a simple model to allow passthrough to validation because a missing element will throw wrong error here
-                    var resource = new FhirJsonParser().Parse(jsonReader, type);
+                    var resource = new FhirJsonParser(settings).Parse(jsonReader, type);
                     return InputFormatterResult.SuccessAsync(resource);
                 }
                 catch (Exception ex)
                 {
-                    //TODO: Remove Fhir Hack
-                    if (ex != null)
-                    {
-                        //Assuming invalid json here, see above
-                        return InputFormatterResult.SuccessAsync("TODO: OperationOutcomeFactory.CreateInvalidRequest()");
-                    }
+                    context.ModelState.AddModelError("InputFormatter", ex.Message);
 
                     return InputFormatterResult.FailureAsync();
                 }

@@ -1,10 +1,14 @@
 ﻿using Hl7.Fhir.Model;
-using SystemTasks = System.Threading.Tasks;
+using NEMS_API.Models.FhirResources;
 
 namespace NEMS_API.Core.Interfaces.Services
 {
     public interface ISubscribeService
     {
-        SystemTasks.Task<OperationOutcome> CreateEvent(Subscription subscription);
+        Subscription ReadEvent(string id);
+
+        Resource CreateEvent(Subscription subscription);
+
+        void DeleteEvent(string id);
     }
 }

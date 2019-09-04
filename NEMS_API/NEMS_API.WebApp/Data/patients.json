@@ -1,0 +1,352 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-EMS-Patient-1"
+          ]
+        },
+        "id": "d29154ba-f000-4f0c-a567-124a349fe466",
+        "identifier": [
+          {
+            "system": "https://fhir.nhs.uk/Id/nhs-number",
+            "value": "2686033207",
+            "extension": [
+              {
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "https://fhir.hl7.org.uk/STU3/CareConnect-NHSNumberVerificationStatus-1",
+                      "display": "Number present and verified",
+                      "code": "01"
+                    }
+                  ]
+                },
+                "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-NHSNumberVerificationStatus-1"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Chalmers",
+            "given": [
+              "Peter",
+              "James"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "01274100000",
+            "use": "home",
+            "rank": 1
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1974-12-25",
+        "deceasedBoolean": false,
+        "address": [
+          {
+            "use": "home",
+            "type": "both",
+            "line": [
+              "534 Erewhon Street"
+            ],
+            "city": "Bradford",
+            "district": "West Yorkshire",
+            "postalCode": "AB1 2CD",
+            "period": {
+              "start": "1974-12-25"
+            }
+          }
+        ],
+        "managingOrganization": {
+          "reference": "Organization/00003X"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-EMS-Patient-1"
+          ]
+        },
+        "id": "4f5a4d3f-67b8-4604-bf5e-3a7b20ca59d1",
+        "identifier": [
+          {
+            "system": "https://fhir.nhs.uk/Id/nhs-number",
+            "value": "1020103620",
+            "extension": [
+              {
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "https://fhir.hl7.org.uk/STU3/CareConnect-NHSNumberVerificationStatus-1",
+                      "display": "Number present and verified",
+                      "code": "01"
+                    }
+                  ]
+                },
+                "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-NHSNumberVerificationStatus-1"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Smith",
+            "given": [
+              "David"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "01274200000",
+            "use": "home",
+            "rank": 1
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1953-09-14",
+        "deceasedBoolean": false,
+        "address": [
+          {
+            "use": "home",
+            "type": "both",
+            "line": [
+              "57 North Street"
+            ],
+            "city": "Bradford",
+            "district": "West Yorkshire",
+            "postalCode": "AB2 3CD",
+            "period": {
+              "start": "1993-04-25"
+            }
+          }
+        ],
+        "managingOrganization": {
+          "reference": "Organization/00003X"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-EMS-Patient-1"
+          ]
+        },
+        "id": "8bdfb562-c7d8-47af-a40e-617569be3aa6",
+        "identifier": [
+          {
+            "system": "https://fhir.nhs.uk/Id/nhs-number",
+            "value": "3656987882",
+            "extension": [
+              {
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "https://fhir.hl7.org.uk/STU3/CareConnect-NHSNumberVerificationStatus-1",
+                      "display": "Number present and verified",
+                      "code": "01"
+                    }
+                  ]
+                },
+                "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-NHSNumberVerificationStatus-1"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Jones",
+            "given": [
+              "Claire"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "01274300000",
+            "use": "home",
+            "rank": 1
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1982-06-24",
+        "deceasedBoolean": false,
+        "address": [
+          {
+            "use": "home",
+            "type": "both",
+            "line": [
+              "19 River Street"
+            ],
+            "city": "Bradford",
+            "district": "West Yorkshire",
+            "postalCode": "AB3 4CD",
+            "period": {
+              "start": "1982-06-24"
+            }
+          }
+        ],
+        "managingOrganization": {
+          "reference": "Organization/00003X"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-EMS-Patient-1"
+          ]
+        },
+        "id": "7fe306c9-c693-4b34-b344-f53515bd90d8",
+        "identifier": [
+          {
+            "system": "https://fhir.nhs.uk/Id/nhs-number",
+            "value": "0766140741",
+            "extension": [
+              {
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "https://fhir.hl7.org.uk/STU3/CareConnect-NHSNumberVerificationStatus-1",
+                      "display": "Number present and verified",
+                      "code": "01"
+                    }
+                  ]
+                },
+                "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-NHSNumberVerificationStatus-1"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Arthur",
+            "given": [
+              "Jeff"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "01154000000",
+            "use": "home",
+            "rank": 1
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1979-09-03",
+        "deceasedBoolean": false,
+        "address": [
+          {
+            "use": "home",
+            "type": "both",
+            "line": [
+              "19 Tower Street"
+            ],
+            "city": "Nottingham",
+            "district": "Nottinghamshire",
+            "postalCode": "AB4 5CD",
+            "period": {
+              "start": "2003-11-14"
+            }
+          }
+        ],
+        "managingOrganization": {
+          "reference": "Organization/00004X"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-EMS-Patient-1"
+          ]
+        },
+        "id": "c54ece02-c0c8-4e02-b708-0169c34940cd",
+        "identifier": [
+          {
+            "system": "https://fhir.nhs.uk/Id/nhs-number",
+            "value": "5456049767",
+            "extension": [
+              {
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "https://fhir.hl7.org.uk/STU3/CareConnect-NHSNumberVerificationStatus-1",
+                      "display": "Number present and verified",
+                      "code": "01"
+                    }
+                  ]
+                },
+                "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-NHSNumberVerificationStatus-1"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Deacon",
+            "given": [
+              "Jennifer"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "01155000000",
+            "use": "home",
+            "rank": 1
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1987-03-26",
+        "deceasedBoolean": false,
+        "address": [
+          {
+            "use": "home",
+            "type": "both",
+            "line": [
+              "19 Cross Street"
+            ],
+            "city": "Nottingham",
+            "district": "Nottinghamshire",
+            "postalCode": "AB5 6CD",
+            "period": {
+              "start": "1987-03-26"
+            }
+          }
+        ],
+        "managingOrganization": {
+          "reference": "Organization/00004X"
+        }
+      }
+    }
+  ]
+}

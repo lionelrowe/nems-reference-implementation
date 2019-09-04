@@ -24,7 +24,7 @@ namespace NEMS_API.Services
             //## Core validation ##
 
             //Bundle
-            var validation = _fhirValidation.ValidProfile(bundle, _nemsApiSettings.BundleProfileUrl);
+            var validation = _fhirValidation.ValidProfile(bundle, _nemsApiSettings.ResourceUrl.BundleProfileUrl);
 
             if (!validation.Success)
             {
@@ -32,7 +32,7 @@ namespace NEMS_API.Services
             }
 
             //Header
-            var header = FhirHelper.GetFirstEntryOfTypeProfile<MessageHeader>(bundle, _nemsApiSettings.HeaderProfileUrl);
+            var header = FhirHelper.GetFirstEntryOfTypeProfile<MessageHeader>(bundle, _nemsApiSettings.ResourceUrl.HeaderProfileUrl);
 
             if(header == null)
             {
@@ -44,7 +44,7 @@ namespace NEMS_API.Services
                 return OperationOutcomeFactory.CreateInvalidResource("MessageHeader.Source.Name", "Name cannot be null.");
             }
 
-            validation = _fhirValidation.ValidProfile(header, _nemsApiSettings.HeaderProfileUrl);
+            validation = _fhirValidation.ValidProfile(header, _nemsApiSettings.ResourceUrl.HeaderProfileUrl);
 
             if (!validation.Success)
             {
@@ -59,7 +59,6 @@ namespace NEMS_API.Services
 
             // ## SEND Message async and immediately return ##
             // no actual MESH stuff to handle so nothing more to do here
-            // we can mimic ITK3 message in subscriber controller
 
             return OperationOutcomeFactory.CreateOk();
         }

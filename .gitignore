@@ -4,8 +4,10 @@
 
 !*.gitkeep
 
+/**/wwwroot/*
 /**/node_modules
 /**/test/coverage
+/**/test/coverage-jest
 /**/*.log
 /**/*.pubxml
 /**/*.user

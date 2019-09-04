@@ -1,0 +1,124 @@
+{
+  "name": "nems-demonstrator-apps",
+  "version": "0.0.1",
+  "description": "NEMS Demonstrator apps.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nhsconnect/nems-reference-implementation.git"
+  },
+  "license": "Apache-2.0",
+  "main": "wwwroot/main.js",
+  "scripts": {
+    "start": "nps",
+    "build": "nps build",
+    "build:dev": "nps webpack.build.development",
+    "watch": "nps webpack.build.production.watch",
+    "watch:dev": "nps webpack.build.development.watch",
+    "test": "nps test"
+  },
+  "jest": {
+    "modulePaths": [
+      "<rootDir>/AppSrc",
+      "<rootDir>/node_modules"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "\\.spec\\.(ts|js)x?$",
+    "setupFiles": [
+      "<rootDir>/test/jest-pretest.ts"
+    ],
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "aurelia-(.*)": "<rootDir>/node_modules/aurelia-$1"
+    },
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "AppSrc/**/*.{js,ts}",
+      "!**/*.spec.{js,ts}",
+      "!**/node_modules/**",
+      "!**/test/**"
+    ],
+    "coverageDirectory": "<rootDir>/test/coverage-jest",
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "html"
+    ],
+    "mapCoverage": true
+  },
+  "devDependencies": {
+    "@types/jest": "20.0.4",
+    "@types/lodash": "4.14.124",
+    "@types/node": "8.0.14",
+    "@types/webpack": "4.4.31",
+    "@types/bootstrap": "4.3.0",
+    "@types/jquery": "3.3.29",
+    "aurelia-loader-nodejs": "1.0.1",
+    "aurelia-pal-nodejs": "1.2.0",
+    "aurelia-protractor-plugin": "1.0.6",
+    "aurelia-testing": "1.0.0",
+    "aurelia-webpack-plugin": "^3.0.0",
+    "autoprefixer": "7.1.2",
+    "awesome-typescript-loader": "5.2.1",
+    "copy-webpack-plugin": "5.0.3",
+    "cross-env": "5.0.1",
+    "css-loader": "2.1.1",
+    "expose-loader": "0.7.3",
+    "file-loader": "3.0.1",
+    "html-webpack-plugin": "3.2.0",
+    "istanbul-instrumenter-loader": "2.0.0",
+    "jasmine-core": "2.6.4",
+    "jest": "24.8.0",
+    "jest-cli": "24.8.0",
+    "json-loader": "0.5.4",
+    "karma": "4.1.0",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-coverage-istanbul-reporter": "1.3.0",
+    "karma-jasmine": "1.1.0",
+    "karma-mocha-reporter": "2.2.3",
+    "karma-webpack": "4.0.0-rc.3",
+    "mini-css-extract-plugin": "0.6.0",
+    "nps": "5.6.0",
+    "nps-utils": "1.2.0",
+    "postcss-loader": "2.0.6",
+    "protractor": "5.4.2",
+    "style-loader": "0.23.1",
+    "sass-loader": "7.1.0",
+    "node-sass": "4.12.0",
+    "ts-jest": "24.0.2",
+    "ts-node": "8.1.0",
+    "typescript": "3.4.5",
+    "url-loader": "1.1.2",
+    "wait-on": "3.2.0",
+    "webpack": "4.30.0",
+    "webpack-cli": "3.3.2",
+    "webpack-dev-server": "3.3.1"
+  },
+  "dependencies": {
+    "aurelia-bootstrapper": "2.3.3",
+    "aurelia-fetch-client": "1.8.2",
+    "aurelia-framework": "1.3.1",
+    "aurelia-history-browser": "1.3.2",
+    "aurelia-loader-webpack": "2.2.1",
+    "aurelia-logging-console": "1.1.1",
+    "aurelia-pal-browser": "1.8.1",
+    "aurelia-polyfills": "1.3.4",
+    "aurelia-router": "1.7.1",
+    "aurelia-templating": "1.10.2",
+    "aurelia-templating-binding": "1.5.3",
+    "aurelia-templating-resources": "1.10.0",
+    "aurelia-templating-router": "1.4.0",
+    "bluebird": "3.5.4",
+    "bootstrap": "^3.0.0",
+    "font-awesome": "4.7.0",
+    "jquery": "3.4.1",
+    "whatwg-fetch": "3.0.0"
+  }
+}

@@ -2,28 +2,58 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <TypeScriptToolsVersion>2.6</TypeScriptToolsVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="AppSrc\app.ts" />
+    <None Remove="AppSrc\core\interfaces\IKeyValuePair.ts" />
+    <None Remove="AppSrc\core\interfaces\IPublishExampleOptions.ts" />
+    <None Remove="AppSrc\core\interfaces\ISdsEntry.ts" />
+    <None Remove="AppSrc\core\IPatient.ts" />
+    <None Remove="AppSrc\core\services\ExampleService.ts" />
+    <None Remove="AppSrc\core\services\FhirService.ts" />
+    <None Remove="AppSrc\core\services\ListService.ts" />
+    <None Remove="AppSrc\core\services\PatientService.ts" />
+    <None Remove="AppSrc\core\services\SystemService.ts" />
+    <None Remove="AppSrc\core\services\WebApi.ts" />
+    <None Remove="AppSrc\pages\Publisher\index.ts" />
+    <None Remove="AppSrc\pages\Home\index.ts" />
     <None Remove="Data\definitions.xml.zip" />
+    <None Remove="AppSrc\main.ts" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Data\definitions.xml.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Data\examples\nems-bundle-1-example.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Core\Formatters\" />
+    <Folder Include="AppSrc\core\models\" />
+    <Folder Include="Core\Converters\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hl7.Fhir.Specification.STU3" Version="1.1.3" />
-    <PackageReference Include="Hl7.Fhir.STU3" Version="1.1.3" />
-    <PackageReference Include="Hl7.Fhir.Support" Version="1.1.3" />
+    <PackageReference Include="Hl7.Fhir.Specification.STU3" Version="1.2.1" />
+    <PackageReference Include="Hl7.Fhir.STU3" Version="1.2.1" />
+    <PackageReference Include="Hl7.Fhir.Support" Version="1.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,9 +61,61 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NEMS_API.Core\NEMS_API.Core.csproj" />
+    <ProjectReference Include="..\NEMS_API.Data\NEMS_API.Data.csproj" />
     <ProjectReference Include="..\NEMS_API.Models\NEMS_API.Models.csproj" />
     <ProjectReference Include="..\NEMS_API.Services\NEMS_API.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="AppSrc\app.ts" />
+    <TypeScriptCompile Include="AppSrc\core\interfaces\IKeyValuePair.ts" />
+    <TypeScriptCompile Include="AppSrc\core\interfaces\IPatient.ts" />
+    <TypeScriptCompile Include="AppSrc\core\interfaces\IPublishExampleOptions.ts" />
+    <TypeScriptCompile Include="AppSrc\core\interfaces\ISdsEntry.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\FhirService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\ExampleService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\SystemService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\ListService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\PatientService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\WebApi.ts" />
+    <TypeScriptCompile Include="AppSrc\main.ts" />
+    <TypeScriptCompile Include="AppSrc\pages\Publisher\index.ts" />
+    <TypeScriptCompile Include="AppSrc\pages\Home\index.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\swagger\ui\custom.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\favicon-16x16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\favicon-32x32.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\oauth2-redirect.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\swagger-ui-bundle.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\swagger-ui-standalone-preset.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\swagger-ui.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\swagger\ui\swagger-ui.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

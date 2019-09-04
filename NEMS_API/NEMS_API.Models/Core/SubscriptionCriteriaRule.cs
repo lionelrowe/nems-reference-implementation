@@ -2,16 +2,15 @@
 {
     public class SubscriptionCriteriaRule
     {
-        public SubscriptionCriteriaRule()
-        {
-            Key = "NOT_SET";
-        }
+        public string Parameter { get; set; }
 
-        public string Key { get; set; }
+        public string ValueType { get; set; }
 
-        public string Value { get; set; }
+        public string Values { get; set; }
 
-        public bool ExactValue { get; set; }
+        public bool IsPrefix { get; set; }
+
+        public bool Ignore { get; set; }
 
         public int Min { get; set; }
 

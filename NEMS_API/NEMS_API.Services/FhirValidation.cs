@@ -1,14 +1,13 @@
 ﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Validation;
 using Microsoft.Extensions.Options;
 using NEMS_API.Core.Factories;
 using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Core.Interfaces.Services;
-using NEMS_API.Core.Resources;
 using NEMS_API.Models.Core;
-using System;
+using NEMS_API.Models.FhirResources;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NEMS_API.Services
 {
@@ -25,24 +24,17 @@ namespace NEMS_API.Services
 
         public OperationOutcome ValidProfile<T>(T resource, string customProfile) where T : Resource
         {
-            var customProfiles = new List<string>();
-
-            if (!string.IsNullOrEmpty(customProfile))
-            {
-                customProfiles.Add(customProfile);
-            }
-
-            var result = _validationHelper.Validator.Validate(resource, customProfiles.ToArray());
+            var result = _validationHelper.ValidateResource(resource, customProfile);
 
             return result;
         }
 
-        public OperationOutcome ValidSubscription(Subscription subscription)
+        public OperationOutcome ValidSubscription(NemsSubscription subscription)
         {
-
-            if(subscription.Meta != null)
+            //#META
+            if (subscription.Meta != null)
             {
-                if(subscription.Meta.LastUpdated != null)
+                if(subscription.Meta.LastUpdated.HasValue)
                 {
                     return OperationOutcomeFactory.CreateInvalidResource("Subscription.Meta.LastUpdated", "Meta.LastUpdated must not be provided by the subscriber.");
                 }
@@ -58,41 +50,54 @@ namespace NEMS_API.Services
                 return OperationOutcomeFactory.CreateInvalidResource("Subscription.Id", "Id must not be provided by the subscriber.");
             }
 
-            //if (subscription.Status != Subscription.SubscriptionStatus.Requested)
-            //{
-            //    return OperationOutcomeFactory.CreateInvalidResource("Subscription.Status", "Status must be of the value Requested.");
-            //}
+            //#STATUS
+            //Skip message review and go straight to "active"
+            if (subscription.Status != Subscription.SubscriptionStatus.Requested)
+            {
+                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Status", "Status must be of the value Requested.");
+            }
 
+            subscription.Status = Subscription.SubscriptionStatus.Active;
+
+            //#CHANNEL
             //Channel should not be null at this point based on profile validation
-            if (subscription.Channel != null)
+            if (subscription.Channel.Type != Subscription.SubscriptionChannelType.Message)
             {
-                if (subscription.Channel.Type != Subscription.SubscriptionChannelType.Message)
-                {
-                    return OperationOutcomeFactory.CreateInvalidResource("Subscription.Channel.Type", "Channel.Type must be of the value Message.");
-                }
-
-                //TODO: Should we create a mapping between ficticious mailbox ids and ods codes?
-                if (string.IsNullOrEmpty(subscription.Channel.Endpoint) || !FhirUri.IsValidValue(subscription.Channel.Endpoint))
-                {
-                    return OperationOutcomeFactory.CreateInvalidResource("Subscription.Channel.Endpoint", "Channel.Endpoint must be supplied.");
-                }
+                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Channel.Type", "Channel.Type must be of the value Message.");
             }
 
+            //TODO: Should we create a mapping between ficticious mailbox ids and ods codes?
+            if (string.IsNullOrEmpty(subscription.Channel.Endpoint) || !FhirUri.IsValidValue(subscription.Channel.Endpoint))
+            {
+                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Channel.Endpoint", "Channel.Endpoint must be supplied.");
+            }
+
+            //#CONACT
             //Contact should not be null or zero at this point based on profile validation
-            if (subscription.Contact != null && subscription.Contact.Count > 0)
+            if(subscription.Contact.First().System != ContactPoint.ContactPointSystem.Url)
             {
-                if(subscription.Contact.First().System != ContactPoint.ContactPointSystem.Url)
-                {
-                    return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].System", "Contact[0].System must be of the value url.");
-                }
-
-                if (subscription.Contact.First().Use != ContactPoint.ContactPointUse.Work)
-                {
-                    return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].Use", "Contact[0].Use must be of the value work.");
-                }
+                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].System", "Contact[0].System must be of the value url.");
             }
 
-            var criteriaOutcome = ValidateSubscriptionCriteria(subscription.Criteria);
+            if (subscription.Contact.First().Use != ContactPoint.ContactPointUse.Work)
+            {
+                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].Use", "Contact[0].Use must be of the value work.");
+            }
+
+            var odsRegex = new Regex("^https://directory.spineservices.nhs.uk/STU3/Organization/(.+)$");
+            var odsMatch = odsRegex.Match(subscription.Contact.First().Value);
+
+            if (!odsMatch.Success)
+            {
+                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].Value", "Contact[0].Use must be of the format https://directory.spineservices.nhs.uk/STU3/Organization/[Org_ODS_Code].");
+            }
+
+            //TODO: check subscription.Channel.Endpoint maps to subscription.Contact[0].Value ODS code
+            var odsCode = odsMatch.Groups.ElementAt(1).Value;
+
+
+            //#CRITERIA
+            var criteriaOutcome = ValidateSubscriptionCriteria(subscription.CriteriaDecoded);
 
             if (!criteriaOutcome.Success)
             {
@@ -111,9 +116,9 @@ namespace NEMS_API.Services
                 return OperationOutcomeFactory.CreateOk();
             }
 
-            var ruleSet = ParseSubscriptionCriteriaRules(_nemsApiSettings.SubscriptionCriteriaRules);
+            var ruleSet = _nemsApiSettings.SubscriptionCriteriaRules;
 
-            if (ruleSet == null || ruleSet.Rules.Count == 0)
+            if (ruleSet == null || ruleSet.Count == 0)
             {
                 return OperationOutcomeFactory.CreateInternalError("SubscriptionCriteriaRules app setting is missing or does not contain any valid rules.");
             }
@@ -128,11 +133,7 @@ namespace NEMS_API.Services
 
             var subscriptionCriteria = new SubscriptionCriteria(criteria);
 
-            if (!string.IsNullOrEmpty(ruleSet.StartsWith) && ruleSet.StartsWith != subscriptionCriteria.Base)
-            {
-                (criteriaSuccess, criteriaMessage) = (false, $"Criteria resource type must be of type {ruleSet.StartsWith}.");
-            }
-            else if(!subscriptionCriteria.Parameters.Any())
+            if(!subscriptionCriteria.Parameters.Any()) // || subscriptionCriteria.Parameters.Any(x => !ruleSet.Select(y => y.Parameter).ToList().Contains(x.Key)))
             {
                 //Assuming crieria will always have at least two components including the base
                 (criteriaSuccess, criteriaMessage) = (false, $"Criteria does not have any components.");
@@ -143,58 +144,129 @@ namespace NEMS_API.Services
                 //TODO: pull search parameter rules from profile
                 //TODO: upgrade app settings to include api setting or external valueset list etc
 
-                foreach(var rule in ruleSet.Rules)
+                foreach(var rule in ruleSet)
                 {
-                    if (rule.Key.ToLowerInvariant() == "servicetype" && rule.Min > 0 && _nemsApiSettings.ServiceTypeCodes.Count > 0)
+                    //Find all criteria params that match rule key
+                    var ruleParams = subscriptionCriteria.Parameters.Where(x => x.Key == rule.Parameter);
+
+                    if (rule.Ignore)
                     {
-                        var serviceType = subscriptionCriteria.Parameters.FirstOrDefault(x => x.Key.ToLowerInvariant() == "servicetype");
-                        if (string.IsNullOrEmpty(serviceType.Key) || !_nemsApiSettings.ServiceTypeCodes.Contains(serviceType.Value))
+                        continue;
+                    }
+
+                    if(rule.Min == 0 && ruleParams.Count() == 0)
+                    {
+                        continue;
+                    }
+
+
+                    //Only expect a type of string to have one parameter
+                    if (rule.ValueType == "single")
+                    {
+                        if (ruleParams.First().Value != rule.Values)
                         {
-                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria servicetype contains an invalid code.");
+                            var message = rule.IsPrefix ? $"Criteria does not start with {rule.Values}" : $"Criteria parameter {rule.Parameter} is invalid.";
+
+                            (criteriaSuccess, criteriaMessage) = (false, message);
                             break;
+                        }
+                        else
+                        {
+                            continue;
                         }
                     }
-                    else
+
+                    //Must contain exactly x of param type
+                    if (rule.Min == rule.Max && ruleParams.Count() != rule.Max)
                     {
-                        //Find all criteria params that match rule key
-                        var param = subscriptionCriteria.Parameters.Where(x => x.Key.ToLowerInvariant() == rule.Key.ToLowerInvariant());
+                        (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain exactly {rule.Min} {rule.Parameter} parameters.");
+                        break;
+                    }
 
-                        //Must contain exactly x of param type
-                        if (rule.Min == rule.Max && param.Count() != rule.Max)
+                    //Must have a least one of param type
+                    if (rule.Min > 0 && ruleParams.Count() < 1)
+                    {
+                        (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain at least {rule.Min} {rule.Parameter} parameter.");
+                        break;
+                    }
+
+                    //Check that total of param type does not exceed max
+                    //If max is less than min then max is unlimited
+                    if (rule.Max > rule.Min && ruleParams.Count() > rule.Max)
+                    {
+                        (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain a maximum of {rule.Max} {rule.Parameter} parameters.");
+                        break;
+                    }
+
+                    //Make sure all provided params are not null
+                    if (!ruleParams.All(x => !string.IsNullOrEmpty(x.Value)))
+                    {
+                        (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameters {rule.Parameter} must contain values.");
+                        break;
+                    }
+
+
+                    if(rule.ValueType == "regExp")
+                    {
+                        var reg = new Regex(@"" + rule.Values);
+
+                        if(ruleParams.Any(x => !reg.Match(x.Value).Success))
                         {
-                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain exactly {rule.Min} {rule.Key} parameters.");
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameters {rule.Parameter} is invalid.");
                             break;
                         }
-
-                        //Must have a least one of param type
-                        if (rule.Min > 0 && param.Count() < 1)
+                        else
                         {
-                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain at least {rule.Min} {rule.Key} parameter.");
-                            break;
-                        }
-
-                        //Check that total of param type does not exceed max
-                        if (param.Count() > rule.Max)
-                        {
-                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria must contain a maximum of {rule.Max} {rule.Key} parameters.");
-                            break;
-                        }
-
-                        //If we require at least one of param type make sure its value is not null
-                        if (rule.Min > 0 && !param.All(x => !string.IsNullOrEmpty(x.Value)))
-                        {
-                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameters {rule.Key} must contain values.");
-                            break;
-                        }
-
-
-                        //If param type should be exact value in rule check param values match this
-                        if (rule.ExactValue && !param.All(x => !string.IsNullOrEmpty(x.Value) && x.Value == rule.Value))
-                        {
-                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameter value for {rule.Key} must be {rule.Value}.");
-                            break;
+                            continue;
                         }
                     }
+
+                    if (rule.ValueType == "codeSystem")
+                    {
+                        var codeSystem = _validationHelper.GetCodeSystem(rule.Values);
+
+                        var codes = codeSystem?.Concept.Select(x => x.Code.Replace("\u200B","")).ToList() ?? new List<string>();
+
+                                                //TODO: Advanced search of codesystem
+                        if (codes.Count > 0 && !ruleParams.All(x => codes.Contains(x.Value)))
+                        {
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameters {rule.Parameter} is invalid.");
+                            break;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (rule.ValueType == "searchParameter")
+                    {
+                        var paramOptions = _validationHelper.GetSearchParameter(rule.Values);
+
+                        //if (!ruleParams.All(x => x.Key.ToUpperInvariant() != paramOptions.Code.ToUpperInvariant()))
+                        //{
+                        //    (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameters {rule.Parameter} contains invalid SearchParameter definition.");
+                        //    break;
+                        //}
+
+                        //Currently just parsing patient.age
+                        //TODO: Advanced handling of searchparameters
+                        var prefixMatcher = paramOptions.Comparator.Any(x => x.HasValue) ? "(" + string.Join("|", paramOptions.Comparator.Where(x => x.HasValue).Select(x => x.Value.ToString().ToLowerInvariant()).ToList()) + ")?" : "";
+                        var valueTypeMatcher = paramOptions.Type.HasValue && paramOptions.Type.Value == SearchParamType.Number ? @"(\d+)" : "(.+)"; //else default to string
+                        var prefixReg = new Regex(@"^" + prefixMatcher + valueTypeMatcher + @"$");
+
+                        if (ruleParams.Any(x => !prefixReg.Match(x.Value).Success))
+                        {
+                            (criteriaSuccess, criteriaMessage) = (false, $"Criteria parameters {rule.Parameter} is invalid.");
+                            break;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                    }
+
                 }
             }
 
@@ -205,53 +277,7 @@ namespace NEMS_API.Services
 
             return OperationOutcomeFactory.CreateOk();
         }
-
-        public SubscriptionCriteriaRuleSet ParseSubscriptionCriteriaRules(List<string> rules)
-        {
-            if (rules == null || rules.Count == 0)
-            {
-                return null;
-            }
-
-            var criteria = new SubscriptionCriteriaRuleSet
-            {
-                StartsWith = rules.FirstOrDefault(x => x.StartsWith("^"))?.Replace("^", "")
-            };
-
-            var ruleSet = rules.Where(x => !x.StartsWith("^")).ToList();
-
-            ruleSet.ForEach(rule => {
-
-                var ruleKV = string.IsNullOrWhiteSpace(rule) ? new List<string>() : rule.Split("=").ToList();
-
-                if(ruleKV.Count == 2 && !string.IsNullOrWhiteSpace(ruleKV.ElementAt(1)))
-                {
-                    var ruleKey = ruleKV.ElementAt(0);
-                    var ruleValue = ruleKV.ElementAt(1);
-
-                    var isZeroOrMore = ruleValue.StartsWith("+");
-                    var isAtLeastOneOrMore = ruleValue.StartsWith("#") && ruleValue.EndsWith("+");
-                    var hasMax = ruleValue.EndsWith("#");
-                    var isExactValue = !(ruleValue.Contains("-") || ruleValue.Contains("+") || ruleValue.Contains("#"));
-
-                    var totalParam = ruleValue.Count(x => x.Equals('#'));
-
-                    var criteriaRule = new SubscriptionCriteriaRule
-                    {
-                        Key = ruleKey,
-                        Value = isExactValue ? ruleValue : "*",
-                        ExactValue = isExactValue,
-                        Min = isZeroOrMore ? 0 : totalParam,
-                        Max = hasMax ? totalParam : 100
-                    };
-
-                    criteria.Rules.Add(criteriaRule);
-                }
-
-            });
-
-            return criteria;
-        }
+              
 
     }
 }

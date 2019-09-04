@@ -56,15 +56,15 @@ namespace NEMS_API.WebApp.Core.Middlewares
                 acceptHeader = context.Request.Headers[acceptKey];
             }
 
-            var validFormatParam = !hasFormatParam || (!string.IsNullOrWhiteSpace(formatParam) && _nemsApiSettings.SupportedContentTypes.Contains(formatParam));
-            var validAcceptHeader = !hasAcceptHeader || (!string.IsNullOrWhiteSpace(acceptHeader) && ValidAccept(acceptHeader));
+            var validFormatParam = !hasFormatParam || (!string.IsNullOrWhiteSpace(formatParam) && ValidContentType(formatParam));
+            var validAcceptHeader = !hasAcceptHeader || (!string.IsNullOrWhiteSpace(acceptHeader) && ValidContentType(acceptHeader));
 
             if (!validFormatParam && (hasFormatParam || !validAcceptHeader))
             {
                 throw new HttpFhirException("Unsupported Media Type", OperationOutcomeFactory.CreateInvalidMediaType(), HttpStatusCode.UnsupportedMediaType);
             }
 
-            if (validFormatParam)
+            if (validFormatParam && hasFormatParam)
             {
                 var accepted = ContentType.GetResourceFormatFromFormatParam(formatParam);
                 if (accepted != ResourceFormat.Unknown)
@@ -96,17 +96,9 @@ namespace NEMS_API.WebApp.Core.Middlewares
             }
         }
 
-        private bool ValidAccept(string accept)
+        private bool ValidContentType(string type)
         {
-            foreach (var type in _nemsApiSettings.SupportedContentTypes)
-            {
-                if (accept.Contains(type))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _nemsApiSettings.SupportedContentTypes.Select(x => x.Value).Contains(type);
         }
     }
 

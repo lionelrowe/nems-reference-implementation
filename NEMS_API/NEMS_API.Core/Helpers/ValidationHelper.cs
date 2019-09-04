@@ -1,34 +1,30 @@
-﻿using Hl7.Fhir.Specification.Source;
-using Hl7.Fhir.Validation;
+﻿using Hl7.Fhir.Model;
 using NEMS_API.Core.Interfaces.Helpers;
 
 namespace NEMS_API.Core.Helpers
 {
     public class ValidationHelper : IValidationHelper
     {
-        public Validator Validator { get; }
+        private readonly IFhirResourceHelper _fhirResourceHelper;
 
-        private IResourceResolver _source { get; }
-
-        private readonly IFhirCacheHelper _fhirCacheHelper;
-
-        public ValidationHelper(IFhirCacheHelper fhirCacheHelper)
+        public ValidationHelper(IFhirResourceHelper fhirResourceHelper)
         {
-            _fhirCacheHelper = fhirCacheHelper;
+            _fhirResourceHelper = fhirResourceHelper;
+        }
 
-            _source = _fhirCacheHelper.GetSource();
+        public OperationOutcome ValidateResource<T>(T resource, string resourceSchema) where T : Resource
+        {
+            return _fhirResourceHelper.ValidateResource(resource, resourceSchema);
+        }
 
-            var ctx = new ValidationSettings()
-            {
-                ResourceResolver = _source,
-                GenerateSnapshot = true,
-                EnableXsdValidation = false,
-                Trace = false,
-                ResolveExteralReferences = true
-            };
+        public CodeSystem GetCodeSystem(string system)
+        {
+            return _fhirResourceHelper.GetCodeSystem(system);
+        }
 
-
-            Validator = new Validator(ctx);
+        public SearchParameter GetSearchParameter(string system)
+        {
+            return _fhirResourceHelper.GetSearchParameter(system) as SearchParameter;
         }
     }
 }

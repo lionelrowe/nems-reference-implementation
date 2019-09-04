@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using NEMS_API.Core.Exceptions;
 using NEMS_API.Core.Factories;
 using NEMS_API.Core.Interfaces.Services;
+using NEMS_API.Models.FhirResources;
+using NEMS_API.WebApp.Core.Filters;
 
 namespace NEMS_API.Controllers
 {
-    [Route("Subscription")]
+    [Route("nems-ri/STU3/Subscription")]
     public class SubscriberController : Controller
     {
         private readonly ISubscribeService _subscribeService;
@@ -27,61 +29,45 @@ namespace NEMS_API.Controllers
         [HttpGet("{subscriptionId}")]
         public async Task<IActionResult> Read(string subscriptionId)
         {
+            var subscription = _subscribeService.ReadEvent(subscriptionId);
 
-            //var result = await someService.Get(subscriptionId);
-
-            //TODO: check if 404 or other
-            //if (result.ResourceType == ResourceType.OperationOutcome)
-            //{
-            //    return NotFound(result);
-            //}
-
-            return Ok("result");
+            return Ok(subscription);
         }
 
         // POST /Subscription
+        [FhirFormatterValidation]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Resource resource)
         {
-            //TODO: Remove temp code
-            if (resource.ResourceType.Equals(ResourceType.OperationOutcome))
-            {
-                throw new HttpFhirException("Invalid Fhir Request", (OperationOutcome)resource, HttpStatusCode.BadRequest);
-            }
-
             if (!resource.ResourceType.Equals(ResourceType.Subscription))
             {
                 throw new HttpFhirException("Invalid Fhir Request", OperationOutcomeFactory.CreateInvalidResourceType(resource.ResourceType.ToString()), HttpStatusCode.BadRequest);
             }
 
-            var create = await _subscribeService.CreateEvent(resource as Subscription);
+            var create = _subscribeService.CreateEvent(resource as Subscription);
 
-            if (!create.Success)
+            //TODO: depreciation warning
+
+            if (create is NemsSubscription subscription)
             {
-                return BadRequest(create);
+                var resourceUri = $"{Request.Scheme}://{Request.Host}/nems-ri/STU3/Subscription/{subscription.Id}";
+                return Created(resourceUri, null);
             }
 
-            return Created("TODO:url", null);
+            return BadRequest(create);
         }
 
         /// <summary>
         /// Deletes a record that was previously persisted into a datastore.
         /// </summary>
-        /// <returns>The OperationOutcome</returns>
-        /// <response code="200">Returns OperationOutcome</response>
+        /// <returns>EMpty ok</returns>
+        /// <response code="200">Returns empty</response>
         [HttpDelete("{subscriptionId}")]
         public async Task<IActionResult> Delete(string subscriptionId)
         {
-            //var result = await someService.Get(subscriptionId);
+            _subscribeService.DeleteEvent(subscriptionId);
 
-            //if (result != null && result.Success)
-            //{
-                //Assume success
-                return Ok();
-            //}
-
-            //TODO: check if 404 or other
-            //return NotFound(result);
+            return Ok();
         }
 
     }

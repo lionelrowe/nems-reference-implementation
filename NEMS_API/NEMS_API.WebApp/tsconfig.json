@@ -1,0 +1,31 @@
+﻿{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "es2015",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictNullChecks": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "allowJs": true,
+    "lib": [
+      "es2017",
+      "dom"
+    ]
+  },
+  "compileOnSave": false,
+  "awesomeTypescriptLoaderOptions": {
+    "forkChecker": true,
+    "reportFiles": [
+      "AppSrc/**/*.{ts,tsx}"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "wwwroot",
+    "obj",
+    "bin",
+    "static",
+    "package-scripts.js"
+  ]
+}

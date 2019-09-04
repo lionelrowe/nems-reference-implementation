@@ -1,0 +1,22 @@
+[
+  {
+    "Id": "5f335fb4-c162-41f8-8591-9ea4f55f3157",
+    "PartyKey": "26590ac1032548bd8a3e2ccaf7999684",
+    "Fqdn": "localhost:55448/subscriber/SUB01/",
+    "EndPoints": [ "http://localhost:55448/subscriber/SUB01/", "http://localhost:55443/subscriber/SUB01/", "http://nrlsdemoapp:5000/subscriber/SUB01/", "http://nrlsdemoapp:5443/subscriber/SUB01/" ],
+    "OdsCode": "SUB01",
+    "Interactions": [ "urn:nhs:names:services:clinicals-sync:SubscriptionsApiGet", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete" ],
+    "Asid": "200000000115",
+    "Thumbprint": ""
+  },
+  {
+    "Id": "ac12bfe9-d9fb-4c83-9aa2-ac7bf35e0820",
+    "PartyKey": "2dc081e4fb314b528eca6019fcb7308b",
+    "Fqdn": "localhost:55448/publisher/PUB01/",
+    "EndPoints": [ "http://localhost:55448/publisher/PUB01/", "http://localhost:55443/publisher/PUB01/", "http://nrlsdemoapp:5000/publisher/PUB01/", "http://nrlsdemoapp:5443/publisher/PUB01/" ],
+    "OdsCode": "PUB01",
+    "Interactions": [ "urn:nhs:names:services:clinicals-sync:PublicationApiPost" ],
+    "Asid": "200000000118",
+    "Thumbprint": ""
+  }
+]

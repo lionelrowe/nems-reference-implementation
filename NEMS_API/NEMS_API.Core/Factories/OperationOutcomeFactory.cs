@@ -144,7 +144,7 @@ namespace NEMS_API.Core.Factories
 
             var details = CreateDetails("NO_RECORD_FOUND", "No Record Found");
 
-            return CreateError($"No record found for supplied DocumentReference identifier - {id}.", details, OperationOutcome.IssueType.NotFound);
+            return CreateError($"No record found for supplied FHIR Resource identifier - {id}.", details, OperationOutcome.IssueType.NotFound);
         }
 
         public static OperationOutcome CreateOrganizationNotFound(string id)
@@ -166,7 +166,7 @@ namespace NEMS_API.Core.Factories
         public static OperationOutcome CreateDuplicateRequest(Identifier masterIdentifier)
         {
 
-            var details = CreateDetails("DUPLICATE_REJECTED", "Duplicate DocumentReference");
+            var details = CreateDetails("DUPLICATE_REJECTED", "Duplicate FHIR Resource");
 
             return CreateError($"Duplicate masterIdentifier value: {masterIdentifier.Value} system: {masterIdentifier.System}", details, OperationOutcome.IssueType.Duplicate);
         }
@@ -180,7 +180,7 @@ namespace NEMS_API.Core.Factories
         {
             var details = CreateDetails("RESOURCE_CREATED", "New resource created", false, Guid.NewGuid().ToString());
 
-            return Create(OperationOutcome.IssueSeverity.Information, OperationOutcome.IssueType.Informational, $"Successfully created resource DocumentReference", details, false);
+            return Create(OperationOutcome.IssueSeverity.Information, OperationOutcome.IssueType.Informational, $"Successfully created FHIR Resource", details, false);
         }
 
         public static OperationOutcome CreateDelete(string url, string text)
@@ -192,7 +192,7 @@ namespace NEMS_API.Core.Factories
 
             var details = CreateDetails("RESOURCE_DELETED", "Resource removed", false, text);
 
-            return Create(OperationOutcome.IssueSeverity.Information, OperationOutcome.IssueType.Informational, $"Successfully removed resource DocumentReference: {url}", details, false);
+            return Create(OperationOutcome.IssueSeverity.Information, OperationOutcome.IssueType.Informational, $"Successfully removed FHIR Resource: {url}", details, false);
         }
 
         public static CodeableConcept CreateDetails(string code, string display, bool spineError = false, string text = null)

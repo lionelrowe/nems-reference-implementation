@@ -16,6 +16,7 @@ namespace NEMS_API.WebApp.Core.Formatters
         {
             SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/fhir+json"));
             SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/json+fhir")); // DSTU2 support as per NRLS spec
+            //SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/json"));
 
             SupportedEncodings.Clear();
             SupportedEncodings.Add(Encoding.UTF8);
@@ -38,7 +39,7 @@ namespace NEMS_API.WebApp.Core.Formatters
 
             if(context.ObjectType == typeof(OperationOutcome) || typeof(Resource).IsAssignableFrom(context.ObjectType))
             {
-                var resource = new FhirJsonSerializer().SerializeToString(context.Object as Resource);
+                var resource = new FhirJsonSerializer(new SerializerSettings { Pretty = true }).SerializeToString(context.Object as Resource);
 
                 buffer.Append(resource);
             }

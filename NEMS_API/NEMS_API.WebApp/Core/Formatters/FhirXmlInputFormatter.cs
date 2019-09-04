@@ -44,20 +44,18 @@ namespace NEMS_API.WebApp.Core.Formatters
 
                 try
                 {
-                    //TODO: parse xml
+                    var settings = new ParserSettings
+                    {
+                        AllowUnrecognizedEnums = true,
+                        AcceptUnknownMembers = false
+                    };
 
-                    //TODO: create a simple model to allow passthrough to validation because a missing element will throw wrong error here
-                    var resource = new FhirXmlParser().Parse(xmlReader, type);
+                    var resource = new FhirXmlParser(settings).Parse(xmlReader, type);
                     return InputFormatterResult.SuccessAsync(resource);
                 }
                 catch (Exception ex)
                 {
-                    //TODO: Remove Fhir Hack
-                    if (ex != null)
-                    {
-                        //Assuming invalid xml here, see above
-                        return InputFormatterResult.SuccessAsync(OperationOutcomeFactory.CreateInvalidRequest());
-                    }
+                    context.ModelState.AddModelError("InputFormatter", ex.Message);
 
                     return InputFormatterResult.FailureAsync();
                 }

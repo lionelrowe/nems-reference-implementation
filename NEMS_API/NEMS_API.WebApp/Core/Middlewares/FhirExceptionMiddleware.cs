@@ -94,23 +94,15 @@ namespace NEMS_API.WebApp.Core.Middlewares
                 acceptHeader = context.Request.Headers[acceptKey];
             }
 
-            var jsonFormat = hasFormatParam && !string.IsNullOrWhiteSpace(formatParam) && _nemsApiSettings.SupportedContentTypes.Contains(formatParam) && formatParam.ToLowerInvariant().Contains("json");
-            var jsonAccept = hasAcceptHeader && !string.IsNullOrWhiteSpace(acceptHeader) && ValidAccept(acceptHeader) && acceptHeader.ToLowerInvariant().Contains("json");
+            var jsonFormat = hasFormatParam && !string.IsNullOrWhiteSpace(formatParam) && ValidContentType(formatParam) && formatParam.ToLowerInvariant().Contains("json");
+            var jsonAccept = hasAcceptHeader && !string.IsNullOrWhiteSpace(acceptHeader) && ValidContentType(acceptHeader) && acceptHeader.ToLowerInvariant().Contains("json");
 
             return jsonFormat || jsonAccept;
         }
 
-        private bool ValidAccept(string accept)
+        private bool ValidContentType(string type)
         {
-            foreach (var type in _nemsApiSettings.SupportedContentTypes)
-            {
-                if (accept.Contains(type))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _nemsApiSettings.SupportedContentTypes.Select(x => x.Value).Contains(type);
         }
     }
 }
