@@ -2,6 +2,7 @@
 import { bindable, inject } from 'aurelia-framework';
 import { IPublishExampleOptions } from '../interfaces/IPublishExampleOptions';
 import { FhirSvc } from './FhirService';
+import { IHttpRequest } from '../interfaces/IHttpRequest';
 
 @inject(WebAPI, FhirSvc)
 export class ExampleSvc {
@@ -21,9 +22,14 @@ export class ExampleSvc {
 
         let query = this.buildQuery(exampleOptions);
 
-        let example = this.api.do<any>(`${this.baseUrl}/Publish${query}`, null, 'get', headers, true);
+        let example = this.api.do<any>({url: `${this.baseUrl}/Publish${query}`, method: 'get', headers: headers, asText: true } as IHttpRequest);
 
-        return example;
+        return example.then(x => {
+            if (this.fhirSvc.isFhirXml(format)) {
+                return `<?xml version="1.0" encoding="UTF-8"?>\n${x}`;
+            }
+            return x;
+        });
     }
 
     private buildQuery(exampleOptions: IPublishExampleOptions): string {

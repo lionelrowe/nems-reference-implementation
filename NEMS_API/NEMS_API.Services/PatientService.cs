@@ -12,17 +12,26 @@ namespace NEMS_API.Services
     {
         private readonly NemsApiSettings _nemsApiSettings;
         private readonly IStaticCacheHelper _staticCacheHelper;
+        private readonly IFileHelper _fileHelper;
 
         //TODO: Add generic db interface to switch out store
-        public PatientService(IOptions<NemsApiSettings> nemsApiSettings, IStaticCacheHelper staticCacheHelper)
+        public PatientService(IOptions<NemsApiSettings> nemsApiSettings, IStaticCacheHelper staticCacheHelper, IFileHelper fileHelper)
         {
             _nemsApiSettings = nemsApiSettings.Value;
             _staticCacheHelper = staticCacheHelper;
+            _fileHelper = fileHelper;
         }
 
         public Bundle GetPatientBundle()
         {
-            var bundle = _staticCacheHelper.GetDataItem<Bundle>(CacheKeys.PatientEntries, _nemsApiSettings.PatientFile);
+            var bundle = _staticCacheHelper.GetEntry<Bundle>(CacheKeys.PatientEntries);
+
+            if(bundle == null)
+            {
+                bundle = _fileHelper.GetResourceFromFile<Bundle>(_nemsApiSettings.PatientFile);
+
+                _staticCacheHelper.AddEntry<Bundle>(bundle, CacheKeys.PatientEntries);
+            }
 
             return bundle;
         }

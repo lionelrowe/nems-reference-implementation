@@ -2,6 +2,8 @@
 import { fetch } from 'whatwg-fetch';
 import { HttpClient, json } from 'aurelia-fetch-client';
 import { EventAggregator } from 'aurelia-event-aggregator';
+import { IHttpRequest } from '../interfaces/IHttpRequest';
+import { IHttpResponse } from '../interfaces/IHttpResponse';
 //import { DialogRequested } from './helpers/EventMessages';
 
 interface ApiResponse {
@@ -41,7 +43,7 @@ export class WebAPI {
         return requestHeaders;
     }
 
-    do<T>(url, body, type, headers?, asText?) {
+    do<T>(request: IHttpRequest) {
         this.httpClient.configure(config => {
             config
                 .useStandardConfiguration()
@@ -49,7 +51,7 @@ export class WebAPI {
                 .withBaseUrl('/nems-ri/')
                 .withDefaults({
                     credentials: 'same-origin',
-                    headers: this.getHeaders(headers),
+                    headers: this.getHeaders(request.headers),
                     mode: 'same-origin'
                 })
                 .withInterceptor({
@@ -66,37 +68,62 @@ export class WebAPI {
                 });
         });
 
-
-        let reqBody = (type === "get") ? {} : {
-            method: type,
-            body: json(body)
+        let reqBody = (request.method === "get") ? {} : {
+            method: request.method,
+            body: (request.asText === true) ? request.body : json(request.body)
         };
 
         let that = this;
         return new Promise<T>(function (resolve, reject) {
             that.httpClient
-                .fetch(url, reqBody)
+                .fetch(request.url, reqBody)
                 .then(response => {
-                    //let resovable = (response.headers.get("Content-Type") || "").indexOf("xml") > -1 ? response.text() : response.json();
 
-                    let resovable = asText && asText === true ? response.text() : response.json();
-                    let rsv = resolve(resovable);
-                    return rsv;
-                }, error => {
-                    try {
-                        error.json().then(serverError => {
-                            if (!error.ok && error.status === 404 && (!serverError || serverError.resourceType != "OperationOutcome")) {
-                                //that.ea.publish(new DialogRequested({ details: error.statusText }));
-                            } else {
-                                //TODO: manage all issues
-                                //that.ea.publish(new DialogRequested(serverError.issue[0] || { details: error.statusText }));
-                            }
-                        });
-                    } catch (e) {
-                        //that.ea.publish(new DialogRequested({ details: error.statusText }));
+                    let resovable = (request.asText === true ? response.text() : response.json()).then(res => {
+
+                        if (request.returnResponse === true) {
+                            return that.buildHttpResponse<T>(response, res);
+                        }
+
+                        return res;
+                    });
+
+                    resolve(resovable);
+
+                },
+                error => {
+
+                    let resovable = (request.asText === true ? error.text() : error.json()).then(res => {
+
+                        if (request.returnResponse === true) {
+                            return that.buildHttpResponse<T>(error, res);
+                        }
+
+                        return res;
+                    });
+
+                    if (request.returnResponse === true) {
+                        resolve(resovable);
+                    }
+                    else {
+                        //TODO: dialog
+                        reject(error);
                     }
                 });
         });
+    }
+
+    private buildHttpResponse<T>(response: Response, body: any): IHttpResponse<T> {
+
+        let responseHeaders: { [key: string]: string } = {};
+
+        response.headers.forEach((value, key) => {
+            responseHeaders[key] = value;
+        });
+
+        let httpResponse = { statusCode: response.status, statusText: response.statusText, body: body, headers: responseHeaders } as IHttpResponse<T>;
+
+        return httpResponse;
     }
 
 }

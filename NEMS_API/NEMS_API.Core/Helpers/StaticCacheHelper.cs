@@ -1,9 +1,6 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Models.Interfaces;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -12,39 +9,42 @@ namespace NEMS_API.Core.Helpers
     public class StaticCacheHelper : IStaticCacheHelper
     {
         private IMemoryCache _cache;
-        private IFileHelper _fileHelper;
         private DateTimeOffset _globalExpiration => GetGlobalExpiration();
 
-        public StaticCacheHelper(IMemoryCache cache, IFileHelper fileHelper)
+        public StaticCacheHelper(IMemoryCache cache)
         {
             _cache = cache;
-            _fileHelper = fileHelper;
         }
 
-        public T GetDataItem<T>(string key, string location) where T : class, new()
+        public T GetEntry<T>(string key) where T : class, new()
         {
-            var dataOut = GetAndSetCacheData<T>(key, location);
+            var dataOut = GetCacheData<T>(key);
 
             return dataOut;
         }
 
-        public List<T> GetDataList<T>(string key, string location) where T : class, new()
-        {
-            var dataOut = GetAndSetCacheData<List<T>>(key, location);
-
-            return dataOut;
-        }
-
-        //public List<T> GetCacheData<T>(string key) where T : new()
+        //public List<T> GetListEntry<T>(string key) where T : class, new()
         //{
-        //    var dataOut = new List<T>();
+        //    var dataOut = GetCacheData<List<T>>(key);
 
-        //    var found =_cache.TryGetValue<List<T>>(key, out dataOut);
-
-        //    return found ? dataOut : new List<T>();
+        //    return dataOut;
         //}
 
-        public T AddItem<T>(T entry) where T: IDataItem, new()
+        public T AddEntry<T>(T entry) where T : IDataItem
+        {
+            AddEntry(entry, entry.CacheKey);
+
+            return entry;
+        }
+
+        public T AddEntry<T>(T entry, string cacheKey)
+        {
+            Set(cacheKey, entry, _globalExpiration);
+
+            return entry;
+        }
+
+        public T AddListItem<T>(T entry) where T: IDataItem, new()
         {
             var dataOut = new List<T>();
 
@@ -73,17 +73,7 @@ namespace NEMS_API.Core.Helpers
             return entry;
         }
 
-        public void Set<T>(string key, T value, DateTimeOffset absoluteExpiration)
-        {
-            using (var entry = _cache.CreateEntry(key))
-            {
-                entry.Value = value;
-                entry.AbsoluteExpiration = absoluteExpiration;
-                //TODO: entry.Size = 1;
-            }
-        }
-
-        public void RemoveItem<T>(T entry) where T : IDataItem
+        public void RemoveListItem<T>(T entry) where T : IDataItem
         {
             var dataOut = new List<T>();
 
@@ -95,9 +85,19 @@ namespace NEMS_API.Core.Helpers
             }
         }
 
-        public void RemoveAll(string cacheKey)
+        public void RemoveEntry(string cacheKey)
         {
             _cache.Remove(cacheKey);
+        }
+
+        public void Set<T>(string key, T value, DateTimeOffset absoluteExpiration)
+        {
+            using (var entry = _cache.CreateEntry(key))
+            {
+                entry.Value = value;
+                entry.AbsoluteExpiration = absoluteExpiration;
+                //TODO: entry.Size = 1;
+            }
         }
 
         private DateTimeOffset GetGlobalExpiration()
@@ -108,35 +108,11 @@ namespace NEMS_API.Core.Helpers
             return new DateTimeOffset(new DateTime(now.Year, now.Month, now.Day, hour, 0, 0, 0, DateTimeKind.Utc));
         }
 
-        private T GetAndSetCacheData<T>(string key, string location) where T : class, new()
+        private T GetCacheData<T>(string key) where T : class, new()
         {
             var dataOut = new T();
 
-            if (!_cache.TryGetValue<T>(key, out dataOut))
-            {
-                if(!string.IsNullOrEmpty(location))
-                {
-                    //TODO: error handler
-                    var data = _fileHelper.GetFileContent(location);
-
-                    if (typeof(T).IsSubclassOf(typeof(Resource)) || typeof(T) == typeof(Resource))
-                    {
-                        var parser = new FhirJsonParser();
-                        dataOut = parser.Parse(data, typeof(T)) as T;
-                    }
-                    else
-                    {
-                        dataOut = JsonConvert.DeserializeObject<T>(data) as T;
-                    }
-
-                    // Save data in cache.
-                    Set(key, dataOut, _globalExpiration);
-                }
-                else
-                {
-                    dataOut = new T();
-                }
-            }
+            _cache.TryGetValue<T>(key, out dataOut);
 
             return dataOut;
         }

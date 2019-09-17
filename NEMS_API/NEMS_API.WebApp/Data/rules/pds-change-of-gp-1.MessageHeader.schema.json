@@ -1,0 +1,216 @@
+{
+    "type": "object",
+    "title": "Event-MessageHeader-1",
+    "required": [
+        "resourceType",
+        "id",
+        "meta",
+        "extension",
+        "event",
+        "source",
+        "focus"
+    ],
+    "properties": {
+        "resourceType": {
+            "type": "string",
+            "title": "The Resourcetype Schema",
+            "const": "MessageHeader"
+        },
+        "id": {
+            "type": "string",
+            "title": "The Id Schema"
+        },
+        "meta": {
+            "type": "object",
+            "title": "The Meta Schema",
+            "required": [
+            "versionId",
+            "lastUpdated",
+            "profile"
+            ],
+            "properties": {
+            "versionId": {
+                "type": "string",
+                "title": "The Versionid Schema"
+            },
+            "lastUpdated": {
+                "type": "string",
+                "title": "The Lastupdated Schema",
+                "format": "date-time"
+            },
+            "profile": {
+                "type": "array",
+                "title": "The Profile Schema",
+                "uniqueItems": true,
+                "additionalItems": {},
+                "items": {
+                "type": "string",
+                "title": "The Items Schema",
+                "enum": [
+                    "https://fhir.nhs.uk/STU3/StructureDefinition/Event-MessageHeader-1"
+                ]
+                }
+            }
+            }
+        },
+        "extension": {
+            "type": "array",
+            "title": "The Extension Schema",
+            "items": {
+            "anyOf": [
+                { "$ref": "#/definitions/Extension-RoutingDemographics-1" },
+                { "$ref": "#/definitions/Extension-MessageEventType-1" }
+            ]
+            }
+        },
+        "event": {
+            "type": "object",
+            "title": "The Event Schema",
+            "required": [
+            "system",
+            "code",
+            "display"
+            ],
+            "properties": {
+            "system": {
+                "type": "string",
+                "title": "The System Schema",
+                "const": "https://fhir.nhs.uk/STU3/CodeSystem/EventType-1"
+            },
+            "code": {
+                "type": "string",
+                "title": "The Code Schema",
+                "const": "pds-change-of-gp-1"
+            },
+            "display": {
+                "type": "string",
+                "title": "The Display Schema",
+                "const":"PDS Change of GP"
+            }
+            }
+        },
+        "source": {
+            "type": "object",
+            "title": "The Source Schema",
+            "required": [
+            "contact",
+            "endpoint",
+            "name"
+            ],
+            "properties": {
+            "contact": {
+                "type": "object",
+                "title": "The Contact Schema",
+                "required": [
+                "system",
+                "value"
+                ],
+                "properties": {
+                "system": {
+                    "type": "string",
+                    "title": "The System Schema"
+                },
+                "value": {
+                    "type": "string",
+                    "title": "The Value Schema"
+                }
+                }
+            },
+            "endpoint": {
+                "type": "string",
+                "title": "The Endpoint Schema",
+                "pattern": "^urn:nhs:addressing:asid:(\\d+)$"
+            },
+            "name": {
+                "type": "string"
+                }
+            }
+        },
+        "focus": {
+            "type": "array",
+            "items": {
+            "type": "object",
+            "title": "The Focus Schema",
+                "required": [
+                    "reference"
+                ],
+                "properties": {
+                    "reference": {
+                        "type": "string",
+                        "title": "The Reference Schema: \"const\": { \"$ref\":\"#CareConnect-Communication-1/id\" }"                                  
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Extension-RoutingDemographics-1": {
+            "type": "object",
+            "title": "Extension-RoutingDemographics-1",
+            "properties": {
+                "extension": {
+                    "type": "array",
+                    "title": "array",
+                    "items":{
+                        "anyOf": [
+                            { "type":"object", "required": ["url", "valueIdentifier"], "properties": { "url":{ "type":"string", "const":"nhsNumber"}, "valueIdentifier": {"type":"object", "required": ["system", "value"], "properties": {"system":{ "type":"string", "const":"https://fhir.nhs.uk/Id/nhs-number"}, "value":{"type":"string"}}}} },
+                            { "type":"object", "required": ["url", "valueHumanName"], "properties": { "url":{ "type":"string", "const":"name"}, "valueHumanName": {"type":"object", "required": ["use", "family", "given"], "properties": {"use":{ "type":"string", "const":"official"}, "family":{"type":"string"}, "given":{"type":"array", "items":{"type":"string"}}}}} },
+                            { "type":"object", "required": ["url", "valueDateTime"], "properties": { "url":{ "type":"string", "const":"birthDateTime"}, "valueDateTime": {"type":"string", "format": "date-time"} } }
+                        ]
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "title": "The Url Schema",
+                    "const": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-RoutingDemographics-1"
+                  }
+              },
+              "required": [
+                "extension",
+                "url"
+              ]
+        },
+        "Extension-MessageEventType-1": {
+            "type": "object",
+            "title": "Extension-MessageEventType-1",
+            "properties": {
+                "valueCodeableConcept": {
+                    "type": "object",
+                    "required": ["coding"],
+                    "properties": {
+                        "coding":{
+                            "type": "array",
+                            "items":{
+                                "type":"object",
+                                "required":["system", "code", "display"],
+                                "properties": {
+                                    "system":{
+                                        "type":"string",
+                                        "const":"https://fhir.nhs.uk/STU3/CodeSystem/MessageEventType-1"
+                                    },
+                                    "code":{
+                                        "type":"string",
+                                        "const":"new"
+                                    },
+                                    "display":{
+                                        "type":"string",
+                                        "const":"New event message"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "title": "The Url Schema",
+                    "const": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-MessageEventType-1"
+                  }
+              },
+              "required": [
+                "valueCodeableConcept",
+                "url"
+              ]
+          }
+        }
+}

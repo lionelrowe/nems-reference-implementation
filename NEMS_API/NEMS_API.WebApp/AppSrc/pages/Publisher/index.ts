@@ -7,16 +7,21 @@ import { ListSvc } from "../../core/services/ListService";
 import { SystemSvc } from "../../core/services/SystemService";
 import { IPublishExampleOptions } from "../../core/interfaces/IPublishExampleOptions";
 import { ISdsEntry } from "../../core/interfaces/ISdsEntry";
+import { IRequest } from "../../core/interfaces/IRequest";
+import { HttpRequest } from "../../core/models/HttpRequest";
+import { PublishSvc } from "../../core/services/PublishService";
+import { JwtSvc } from "../../core/services/JwtService";
+import { IHttpResponse } from "../../core/interfaces/IHttpResponse";
 
-@inject(PatientSvc, ExampleSvc, ListSvc, SystemSvc)
+@inject(PatientSvc, ExampleSvc, ListSvc, SystemSvc, JwtSvc, PublishSvc)
 export class Publisher {
 
     heading: string = 'Publisher';
 
-    patients: IPatient[];
+    //patients: IPatient[];
 
-    @observable
-    selectedPatient?: IPatient;
+    //@observable
+    //selectedPatient?: IPatient;
 
     eventMessageTypes: IKeyValuePair[];
 
@@ -25,47 +30,77 @@ export class Publisher {
 
     defaultPublisher?: ISdsEntry;
 
-    publishMessage: any = {};
+    spine?: ISdsEntry;
 
-    publishMessagePreview: string;
+    publishRequest: IRequest = new HttpRequest({ method: "post" } as IRequest); 
 
     exampleMessageFormats: IKeyValuePair[];
+
+    response?: IHttpResponse<any>;
 
     @observable
     selectedExampleMessageFormat: IKeyValuePair;
     
 
-    constructor(private patientSvc: PatientSvc, private exampleSvc: ExampleSvc, private listSvc: ListSvc, private systemSvc: SystemSvc) {
+    constructor(private patientSvc: PatientSvc, private exampleSvc: ExampleSvc, private listSvc: ListSvc, private systemSvc: SystemSvc, private jwtSvc: JwtSvc, private publishSvc: PublishSvc) {
 
-        this.getPatients();
+        //this.getPatients();
 
-        this.getEventTypeCodes();
+        this.getSpineDetails();
+
+        this.getDefaultPublisher().then(() => {
+            this.getEventTypeCodes();
+        });
 
         this.getValidContentTypes();
 
-        this.getDefaultPublisher();
+        
     }
 
 
-    private get isEventDisabled(): boolean {
-        return !this.selectedPatient;
-    }
+    //private get isEventDisabled(): boolean {
+    //    return !this.selectedPatient;
+    //}
 
-    private getPatients() {
-        this.patientSvc.getPatients().then(patients => {
-            this.patients = patients;
-        });
-    }
+    //private getPatients() {
+    //    this.patientSvc.getPatients().then(patients => {
+    //        this.patients = patients;
+    //    });
+    //}
+
+    private setSelectedInteractionId() {
+
+        if (this.defaultPublisher && this.defaultPublisher.interactions && this.selectedEventMessageType) {
+            this.publishRequest.interactionId = this.defaultPublisher.interactions.find(ia => { return this.selectedEventMessageType ? ia.indexOf(this.selectedEventMessageType.key) > -1 : false; }) || "";
+        }
+         
+    } 
 
     private getEventTypeCodes() {
-        this.listSvc.getEventCodes().then(eventCode => {
+       this.listSvc.getEventCodes().then(eventCode => {
             this.eventMessageTypes = eventCode;
         });
     }
 
-    private getDefaultPublisher() {
-        this.systemSvc.getDefaultPublisher().then(publisher => {
-            this.defaultPublisher = publisher;
+    private getDefaultPublisher() : Promise<any> {
+        return this.systemSvc.getDefaultPublisher().then(publisher => {
+            this.defaultPublisher = publisher;   
+
+            this.publishRequest.fromAsid = publisher.asid;
+
+            let odsCode = publisher.odsCode || "";
+
+            this.jwtSvc.generate(odsCode, publisher.asid).then(jwt => {
+
+                this.publishRequest.jwt = jwt;
+            });
+        });
+    }
+
+    private getSpineDetails() {
+        this.systemSvc.getSpine().then(spine => {
+            this.spine = spine;
+            this.publishRequest.toAsid = spine.asid;
         });
     }
 
@@ -74,21 +109,28 @@ export class Publisher {
             this.exampleMessageFormats = contentTypes;
 
             this.selectedExampleMessageFormat = this.exampleMessageFormats[0];
+
+            this.publishRequest.contentType = this.selectedExampleMessageFormat.value;
         });
     }
 
     private sendEvent(): void {
-        console.log(this.publishMessage);
+        this.publishSvc.publishEvent(this.publishRequest).then(res => {
+            this.response = res;
+            console.log(res.headers);
+        });
     }
 
-    private selectedPatientChanged(newValue: any, oldValue: string) {
+    //private selectedPatientChanged(newValue: any, oldValue: string) {
 
-        this.getExample();
-    }
+    //    this.getExample();
+    //}
 
     private selectedEventMessageTypeChanged(newValue: any, oldValue: string) {
 
-            this.getExample();
+        this.getExample();
+
+        this.setSelectedInteractionId();
     }
 
     private selectedExampleMessageFormatChanged(newValue: IKeyValuePair, oldValue: IKeyValuePair) {
@@ -98,22 +140,25 @@ export class Publisher {
         }
 
         this.selectedExampleMessageFormat = newValue;
+        this.publishRequest.contentType = newValue.value;
         this.getExample();
     }
 
     private getExample() {
 
-        if (!this.selectedPatient || !this.selectedEventMessageType) {
+        if (/*!this.selectedPatient ||*/ !this.selectedEventMessageType) {
             return true;
         }
 
+        this.publishRequest.body = "";
+
         let options: IPublishExampleOptions = {
-            nhsNumber: (this.selectedPatient || { nhsNumber: undefined }).nhsNumber,
+            nhsNumber: (/*this.selectedPatient || */{ nhsNumber: undefined }).nhsNumber,
             eventMessageTypeId: (this.selectedEventMessageType || { key: undefined}).key
         };
 
         this.exampleSvc.generatePublish(options, this.selectedExampleMessageFormat.value).then(example => {
-            this.publishMessage = this.publishMessagePreview = example;
+            this.publishRequest.body = example;
         });
     }
 }

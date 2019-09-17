@@ -8,18 +8,22 @@ namespace NEMS_API.Models.Core
         {
             SupportedContentTypes = new List<KvList>();
             SubscriptionCriteriaRules = new List<SubscriptionCriteriaRule>();
-            ServiceTypeCodes = new List<string>();
+            BundleValidationSchemas = new Dictionary<string, List<KvList>>();
+            SupportedEventTypes = new List<string>();
         }
 
         public ResourceUrls ResourceUrl { get; set; }
 
         public List<KvList> SupportedContentTypes { get; set; }
 
+        public List<string> SupportedEventTypes { get; set; }
+
         public List<SubscriptionCriteriaRule> SubscriptionCriteriaRules { get; set; }
 
-        public List<string> ServiceTypeCodes { get; set; }
 
         public bool SkipSubscriptionCriteria { get; set; }
+
+        public bool MessageHeaderValidationOnly { get; set; }
 
         public string PatientFile { get; set; }
 
@@ -28,6 +32,8 @@ namespace NEMS_API.Models.Core
         public string SpineASID { get; set; }
 
         public List<InteractionIdMap> InteractionIdMap { get; set; }
+
+        public IDictionary<string, List<KvList>> BundleValidationSchemas { get; set; }
 
     }
 

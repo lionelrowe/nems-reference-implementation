@@ -95,6 +95,7 @@ namespace NEMS_API
             services.AddTransient<IFileHelper, FileHelper>();
             services.AddTransient<IDataWriter, CacheDataWriter>();
             services.AddTransient<IDataReader, CacheDataReader>();
+            services.AddTransient<ISchemaValidationHelper, SchemaValidationHelper>();
         }
 
         private List<string> SetList(string configVal)

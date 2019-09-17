@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "title": "CareConnect-Communication-1",
+  "required": [
+      "resourceType",
+      "id",
+      "meta",
+      "status",
+      "subject",
+      "sender"
+    ],
+    "properties": {
+      "resourceType": {
+        "type": "string",
+        "title": "The Resourcetype Schema",
+        "const": "Communication"
+      },
+      "id": {
+       "$id": "#CareConnect-Communication-1/id",
+        "type": "string",
+        "title": "The Id Schema"
+      },
+      "meta": {
+        "type": "object",
+        "title": "The Meta Schema",
+        "required": [
+          "profile"
+        ],
+        "properties": {
+          "profile": {
+            "type": "array",
+            "title": "The Profile Schema",
+            "uniqueItems": true,
+            "additionalItems": {},
+            "items": {
+              "type": "string",
+              "enum": ["https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-Communication-1"]
+            }
+          }
+        }
+      },
+      "status": {
+        "type": "string",
+        "title": "The Status Schema",
+        "const": "completed"
+      },
+      "subject": {
+        "type": "object",
+        "title": "The Subject Schema",
+        "required": [
+          "reference",
+          "display"
+        ],
+        "properties": {
+          "reference": {
+            "type": "string",
+            "title": "The Reference Schema"
+          },
+          "display": {
+            "type": "string",
+            "title": "The Display Schema"
+          }
+        }
+      },
+      "sender": {
+        "type": "object",
+        "title": "The Sender Schema",
+        "required": [
+          "reference",
+          "display"
+        ],
+        "properties": {
+          "reference": {
+            "type": "string",
+            "title": "The Reference Schema"
+          },
+          "display": {
+            "type": "string",
+            "title": "The Display Schema"
+          }
+        }
+      }
+    }
+}

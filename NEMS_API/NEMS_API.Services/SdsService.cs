@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Models.Core;
@@ -11,14 +10,14 @@ namespace NEMS_API.Services
 {
     public class SdsService : ISdsService
     {
-        private readonly IMemoryCache _cache;
+        private readonly IFileHelper _fileHelper;
         private readonly IStaticCacheHelper _staticCacheHelper;
         private readonly NemsApiSettings _nemsApiSettings;
 
         //TODO: Add generic db interface to switch out store
-        public SdsService(IMemoryCache cache, IStaticCacheHelper staticCacheHelper, IOptions<NemsApiSettings> nemsApiSettings)
+        public SdsService(IFileHelper fileHelper, IStaticCacheHelper staticCacheHelper, IOptions<NemsApiSettings> nemsApiSettings)
         {
-            _cache = cache;
+            _fileHelper = fileHelper;
             _staticCacheHelper = staticCacheHelper;
             _nemsApiSettings = nemsApiSettings.Value;
         }
@@ -45,7 +44,14 @@ namespace NEMS_API.Services
 
         public List<SdsViewModel> GetAll()
         {
-            var cache = _staticCacheHelper.GetDataList<SdsViewModel>(CacheKeys.SdsEntries, _nemsApiSettings.SdsFile);
+            var cache = _staticCacheHelper.GetEntry<List<SdsViewModel>>(CacheKeys.SdsEntries);
+
+            if (cache == null)
+            {
+                cache = _fileHelper.GetResourceFromFile<List<SdsViewModel>>(_nemsApiSettings.SdsFile);
+
+                _staticCacheHelper.AddEntry<List<SdsViewModel>>(cache, CacheKeys.SdsEntries);
+            }
 
             return cache;
         }

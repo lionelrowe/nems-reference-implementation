@@ -6,6 +6,7 @@ using NEMS_API.Core.Factories;
 //using NRLS_API.Core.Exceptions;
 //using NRLS_API.Core.Factories;
 using System;
+using System.IO;
 using System.Text;
 using System.Xml;
 using SystemTask = System.Threading.Tasks;

@@ -1,5 +1,6 @@
 ﻿import { WebAPI } from './WebApi';
 import { bindable, inject } from 'aurelia-framework';
+import { IHttpRequest } from '../interfaces/IHttpRequest';
 
 @inject(WebAPI)
 export class ListSvc {
@@ -14,7 +15,7 @@ export class ListSvc {
      * @returns A list of  Event Codes in the form of KeyValuePair.
      */
     getEventCodes() {
-        let response = this.api.do<any>(`${this.baseUrl}/EventCodes${this.query}`, null, 'get');
+        let response = this.api.do<any>({url: `${this.baseUrl}/EventCodes${this.query}`, method: 'get'} as IHttpRequest);
 
         return response;
     }
@@ -24,7 +25,7 @@ export class ListSvc {
  * @returns A list of  valid ContentTypes in the form of KeyValuePair.
  */
     getValidContentTypes() {
-        let response = this.api.do<any>(`${this.baseUrl}/ValidContentTypes${this.query}`, null, 'get');
+        let response = this.api.do<any>({url: `${this.baseUrl}/ValidContentTypes${this.query}`, method: 'get'} as IHttpRequest);
 
         return response;
     }

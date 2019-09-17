@@ -1,11 +1,15 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using NEMS_API.Core.Factories;
 using NEMS_API.Core.Interfaces.Services;
+using NEMS_API.Core.Resources;
 using NEMS_API.Models.Core;
-using NEMS_API.Models.FhirResources;
+//using NEMS_API.Models.FhirResources;
 
 
 namespace NEMS_API.Controllers
@@ -33,42 +37,46 @@ namespace NEMS_API.Controllers
         public async Task<IActionResult> ExamplePublish([FromQuery] PublishExampleOptions options)
         {
 
-            var patient = _patientService.GetPatient(options.NhsNumber);
+            //var patient = _patientService.GetPatient(options.NhsNumber);
 
             var evetType = _fhirUtilities.GetNemsEventCode(options.EventMessageTypeId);
 
-            var healthCareService = new NemsHealthCareService
-            {
-                Id = Guid.NewGuid()
-            };
+            var exampleLocation = Path.Combine("Data", "examples", $"{evetType.Key}.xml");
 
-            var communication = new NemsCommunication
-            {
-                Id = Guid.NewGuid(),
-                Patient = patient
-            };
+            var example = _fhirUtilities.GetResourceFromXml<Bundle>(exampleLocation);
 
-            var header = new NemsMessageHeader(_nemsApiSettings.ResourceUrl)
-            {
-                Id = Guid.NewGuid(),
-                EvetType = evetType,
-                MainFocusId = communication.Id
-            };
+            //var healthCareService = new NemsHealthCareService
+            //{
+            //    Id = Guid.NewGuid()
+            //};
 
-            var bundle = new NemsBundle
-            {
-                Id = Guid.NewGuid()
-            };
+            //var communication = new NemsCommunication
+            //{
+            //    Id = Guid.NewGuid(),
+            //    Patient = patient
+            //};
 
-            bundle.AddEntry(header.Id, header.Default());
+            //var header = new NemsMessageHeader(_nemsApiSettings.ResourceUrl)
+            //{
+            //    Id = Guid.NewGuid(),
+            //    EvetType = evetType,
+            //    MainFocusId = communication.Id
+            //};
 
-            bundle.AddEntry(healthCareService.Id, healthCareService.Default());
+            //var bundle = new NemsBundle
+            //{
+            //    Id = Guid.NewGuid()
+            //};
 
-            bundle.AddEntry(communication.Id, communication.Default());
+            //bundle.AddEntry(header.Id, header.Default());
 
-            bundle.AddEntry(patient.Id, patient);
+            //bundle.AddEntry(healthCareService.Id, healthCareService.Default());
 
-            var example = bundle.Default();
+            //bundle.AddEntry(communication.Id, communication.Default());
+
+            //bundle.AddEntry(patient.Id, patient);
+
+            //var example = bundle.Default();
 
             return Ok(example);
         }
@@ -91,14 +99,14 @@ namespace NEMS_API.Controllers
             return Ok(eventCodes);
         }
 
-        [HttpGet("Patients")]
-        public async Task<IActionResult> Patients()
-        {
+        //[HttpGet("Patients")]
+        //public async Task<IActionResult> Patients()
+        //{
 
-            var patients = _patientService.GetPatientBundle();
+        //    var patients = _patientService.GetPatientBundle();
 
-            return Ok(patients);
-        }
+        //    return Ok(patients);
+        //}
 
         //[HttpGet("Patients/{nhsNumber:regex(^[[0-9]]{{10}}$)}")]
         //public async Task<IActionResult> Patient(string nhsNumber)
@@ -114,11 +122,32 @@ namespace NEMS_API.Controllers
         //    return Ok(patient);
         //}
 
+        [HttpGet("Jwt/Generate")]
+        public async Task<IActionResult> Jwt_Generate([FromQuery] JwtRequest jwtRequest)
+        {
+
+            var jwt = JwtFactory.Generate(jwtRequest.Hydrate());
+
+            return Ok(jwt);
+        }
+
         [HttpGet("Systems/DefaultPublisher")]
         public async Task<IActionResult> Systems_DefaultPublisher()
         {
 
-            var system = _sdsService.GetAll().FirstOrDefault(x => x.Interactions.Contains("urn:nhs:names:services:clinicals-sync:PublicationApiPost"));
+            var system = _sdsService.GetAll().FirstOrDefault(x => x.Interactions.Contains(FhirConstants.IIPublishEvent("pds-change-of-gp-1")));
+
+            return Ok(system);
+        }
+
+        [HttpGet("Systems/Spine")]
+        public async Task<IActionResult> Systems_Spine()
+        {
+
+            var system = new SdsViewModel
+            {
+                Asid = _nemsApiSettings.SpineASID
+            };
 
             return Ok(system);
         }

@@ -1,0 +1,82 @@
+{
+    "type": "object",
+    "title": "CareConnect-Organization-1",
+    "required": [
+        "resourceType",
+        "id",
+        "meta",
+        "identifier",
+        "name",
+        "partOf"
+    ],
+    "properties": {
+        "resourceType": {
+        "type": "string",
+        "const": "Organization"
+        },
+        "id": {
+        "type": "string"
+        },
+        "meta": {
+        "type": "object",
+        "required": [
+            "profile"
+        ],
+        "properties": {
+            "profile": {
+                "type": "array",
+                "uniqueItems": true,
+                "additionalItems": {},
+                "items": {
+                    "type": "string",
+                    "enum": [
+                    "https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-Organization-1"
+                    ]
+                }
+            }
+        }
+        },
+        "identifier": {
+        "type": "array",
+        "title": "The Identifier Schema",
+        "uniqueItems": true,
+        "additionalItems": {},
+        "items": {
+            "type": "object",
+            "required": [
+            "system",
+            "value"
+            ],
+            "properties": {
+            "system": {
+                "type": "string",
+                "const": "https://fhir.nhs.uk/Id/ods-organization-code"
+            },
+            "value": {
+                "type": "string"
+            }
+            }
+        }
+        },
+        "name": {
+        "type": "string"
+        },
+        "partOf": {
+        "type": "object",
+        "title": "The Partof Schema",
+        "required": [
+            "reference",
+            "display"
+        ],
+        "properties": {
+            "reference": {
+                "type": "string",
+                "pattern": "^https://directory.spineservices.nhs.uk/STU3/Organization/(.*)$"
+            },
+            "display": {
+            "type": "string"
+            }
+            }
+        }
+    }
+}

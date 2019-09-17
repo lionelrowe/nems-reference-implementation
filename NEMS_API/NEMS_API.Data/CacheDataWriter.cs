@@ -15,13 +15,13 @@ namespace NEMS_API.Data
 
         public T Create<T>(T data) where T : IDataItem, new()
         {
-            var entry = _staticCacheHelper.AddItem(data);
+            var entry = _staticCacheHelper.AddListItem(data);
             return data;
         }
 
         public void Delete<T>(T entry) where T : IDataItem
         {
-            _staticCacheHelper.RemoveItem(entry);
+            _staticCacheHelper.RemoveListItem(entry);
         }
     }
 }

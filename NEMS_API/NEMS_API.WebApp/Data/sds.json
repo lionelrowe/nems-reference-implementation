@@ -15,7 +15,7 @@
     "Fqdn": "localhost:55448/publisher/PUB01/",
     "EndPoints": [ "http://localhost:55448/publisher/PUB01/", "http://localhost:55443/publisher/PUB01/", "http://nrlsdemoapp:5000/publisher/PUB01/", "http://nrlsdemoapp:5443/publisher/PUB01/" ],
     "OdsCode": "PUB01",
-    "Interactions": [ "urn:nhs:names:services:clinicals-sync:PublicationApiPost" ],
+    "Interactions": [ "urn:nhs:names:services:events:pds-birth-notification-1.Write", "urn:nhs:names:services:events:pds-change-of-address-1.Write", "urn:nhs:names:services:events:pds-change-of-gp-1.Write", "urn:nhs:names:services:events:pds-death-notification-1.Write" ],
     "Asid": "200000000118",
     "Thumbprint": ""
   }

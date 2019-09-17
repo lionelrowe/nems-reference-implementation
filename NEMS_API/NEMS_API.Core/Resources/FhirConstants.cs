@@ -63,6 +63,6 @@
 
         public const string IISubscriptionRead = "urn:nhs:names:services:clinicals-sync:SubscriptionsApiGet";
 
-        public string IIPublishEvent(string code) => $"urn:nhs:names:services:events:{code}.Write";
+        public static string IIPublishEvent(string code) => $"urn:nhs:names:services:events:{code}.Write";
     }
 }

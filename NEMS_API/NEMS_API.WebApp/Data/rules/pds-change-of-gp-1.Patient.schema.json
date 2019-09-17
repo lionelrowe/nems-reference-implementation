@@ -1,0 +1,199 @@
+{
+    "type": "object",
+    "title": "CareConnect-Patient-1",
+    "required": [
+        "resourceType",
+        "id",
+        "meta",
+        "identifier",
+        "birthDate",
+        "_birthDate",
+        "generalPractitioner"
+    ],
+    "properties": {
+        "resourceType": {
+        "type": "string",
+        "title": "The Resourcetype Schema",
+        "const": "Patient"
+        },
+        "id": {
+        "type": "string"
+        },
+        "meta": {
+        "type": "object",
+        "title": "The Meta Schema",
+        "required": [
+            "profile",
+            "versionId"
+        ],
+        "properties": {
+            "profile": {
+            "type": "array",
+            "title": "The Profile Schema",
+            "uniqueItems": true,
+            "additionalItems": {},
+            "items": {
+                "type": "string",
+                "enums": ["https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-Patient-1"]
+            }
+            },
+            "versionId":{
+                "type": "string"
+            }
+        }
+        },
+        "identifier": {
+        "type": "array",
+        "title": "The Identifier Schema",
+        "uniqueItems": true,
+        "additionalItems": {},
+        "items": {
+            "type": "object",
+            "title": "The Items Schema",
+            "required": [
+            "extension"
+            ],
+            "properties": {
+            "extension": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 1,
+                "title": "The Extension Schema",
+                "uniqueItems": true,
+                "additionalItems": false,
+                "items": {
+                "type": "object",
+                "title": "The Items Schema",
+                "required": [
+                    "valueCodeableConcept"
+                ],
+                "properties": {
+                    "valueCodeableConcept": {
+                    "type": "object",
+                    "title": "The Valuecodeableconcept Schema",
+                    "required": [
+                        "coding"
+                    ],
+                    "properties": {
+                        "coding": {
+                        "type": "array",
+                        "title": "The Coding Schema",
+                        "uniqueItems": true,
+                        "additionalItems": false,
+                        "items": {
+                            "type": "object",
+                            "title": "The Items Schema",
+                            "required": [
+                            "system",
+                            "code",
+                            "display"
+                            ],
+                            "properties": {
+                            "system": {
+                                "type": "string",
+                                "title": "The System Schema",
+                                "const": "https://fhir.hl7.org.uk/STU3/CodeSystem/CareConnect-NHSNumberVerificationStatus-1"
+                            },
+                            "code": {
+                                "type": "string",
+                                "title": "The Code Schema",
+                                "const": "01"
+                            },
+                            "display": {
+                                "type": "string",
+                                "title": "The Display Schema",
+                                "const": "Number present and verified"
+                            }
+                            }
+                        }
+                        }
+                    }
+                    }
+                }
+                }
+            }
+            }
+        }
+        },
+        "birthDate": {
+        "type": "string",
+        "title": "The Birthdate Schema",
+        "format": "date"
+        },
+        "_birthDate": {
+        "type": "object",
+        "title": "The _birthdate Schema",
+        "required": [
+            "extension"
+        ],
+        "properties": {
+            "extension": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "title": "The Extension Schema",
+            "uniqueItems": true,
+            "additionalItems": false,
+            "items": {
+                "type": "object",
+                "title": "The Items Schema",
+                "required": [
+                "url",
+                "valueDateTime"
+                ],
+                "properties": {
+                "url": {
+                    "type": "string",
+                    "title": "The Url Schema",
+                    "const": "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+                },
+                "valueDateTime": {
+                    "type": "string",
+                    "title": "The Valuedatetime Schema",
+                    "format": "date-time"
+                }
+                }
+            }
+            }
+        }
+        },
+        "address": {
+        "type": "array",
+        "title": "The Address Schema",
+        "uniqueItems": true,
+        "additionalItems": {},
+        "items": {
+            "type": "object",
+            "title": "The Items Schema",
+            "required": [
+            "text"
+            ],
+            "properties": {
+            "text": {
+                "type": "string"
+            }
+            }
+        }
+        },
+        "generalPractitioner": {
+        "type": "array",
+        "title": "The Generalpractitioner Schema",
+        "uniqueItems": true,
+        "additionalItems": false,
+        "minItems": 1,
+        "maxItems": 1,
+        "items": {
+            "type": "object",
+            "title": "The Items Schema",
+            "required": [
+            "reference"
+            ],
+            "properties": {
+            "reference": {
+                "type": "string"
+            }
+            }
+        }
+        }
+    }
+}

@@ -10,5 +10,7 @@ namespace NEMS_API.Core.Interfaces.Services
         KeyValuePair<string, string> GetNemsEventCode(string code);
 
         IEnumerable<KvList> GetNemsValidContentTypes();
+
+        T GetResourceFromXml<T>(string relativePathToXml) where T : class;
     }
 }

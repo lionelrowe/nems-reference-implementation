@@ -3,6 +3,7 @@ import { bindable, inject } from 'aurelia-framework';
 import { IPatient } from '../interfaces/IPatient';
 import { IBundle } from '../interfaces/fhir/IBundle';
 import { FhirSvc } from './FhirService';
+import { IHttpRequest } from '../interfaces/IHttpRequest';
 
 @inject(WebAPI, FhirSvc)
 export class PatientSvc {
@@ -19,7 +20,7 @@ export class PatientSvc {
     getPatients() {
         let headers = this.fhirSvc.getFhirRequestHeaders();
 
-        let response = this.api.do<IBundle<IPatient>>(`${this.baseUrl}${this.query}`, null, 'get', headers);
+        let response = this.api.do<IBundle<IPatient>>({url: `${this.baseUrl}${this.query}`, method: 'get', headers: headers } as IHttpRequest);
 
         let patients: Promise<IPatient[]> = response.then(bundle => {
             let patientList = new Array<IPatient>();

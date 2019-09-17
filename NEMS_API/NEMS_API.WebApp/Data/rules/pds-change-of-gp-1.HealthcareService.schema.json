@@ -1,0 +1,96 @@
+{
+    "type": "object",
+    "title": "CareConnect-HealthcareService-1",
+    "required": [
+        "resourceType",
+        "id",
+        "meta",
+        "providedBy",
+        "type"
+    ],
+    "properties": {
+        "resourceType": {
+        "type": "string",
+        "const": "HealthcareService"
+        },
+        "id": {
+        "type": "string"
+        },
+        "meta": {
+        "type": "object",
+        "required": [
+            "profile"
+        ],
+        "properties": {
+            "profile": {
+            "type": "array",
+            "uniqueItems": true,
+            "additionalItems": {},
+            "items": {
+                "type": "string",
+                "enum": [
+                "https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-HealthcareService-1"
+                ]
+            }
+            }
+        }
+        },
+        "providedBy": {
+        "type": "object",
+        "required": [
+            "reference",
+            "display"
+        ],
+        "properties": {
+            "reference": {
+            "type": "string"
+            },
+            "display": {
+            "type": "string"
+            }
+        }
+        },
+        "type": {
+        "type": "array",
+        "uniqueItems": true,
+        "additionalItems": false,
+        "minItems":1,
+        "maxItems":1,
+        "items": {
+            "type": "object",
+            "required": [
+            "coding"
+            ],
+            "properties": {
+            "coding": {
+                "type": "array",
+                "uniqueItems": true,
+                "additionalItems": false,
+                "items": {
+                "type": "object",
+                "required": [
+                    "system",
+                    "code",
+                    "display"
+                ],
+                "properties": {
+                    "system": {
+                    "type": "string",
+                    "const": "https://fhir.nhs.uk/STU3/CodeSystem/EMS-HealthcareServiceType-1"
+                    },
+                    "code": {
+                    "type": "string",
+                    "const": "PDS"
+                    },
+                    "display": {
+                    "type": "string",
+                    "const": "Personal Demographics Service"
+                    }
+                }
+                }
+            }
+            }
+        }
+        }
+    }
+}

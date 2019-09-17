@@ -35,4 +35,9 @@ export class FhirSvc {
 
         return { "Accept": contentType, "Content-Type": contentType };
     }
+
+    public isFhirXml(format: string): boolean {
+
+        return ["application/fhir+xml", "application/xml+fhir"].indexOf(format) > -1;
+    }
 }

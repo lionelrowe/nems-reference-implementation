@@ -1,25 +1,28 @@
 ﻿<template>
+    <require from="core/helpers/converters/keys"></require>
+
     <section class="container">
         <h1 class="h1">${heading}</h1>
-        
+
         <form>
-            <div class="form-group">
+            <!--<div class="form-group">
                 <label for="patient">Patient</label>
                 <select value.bind="selectedPatient" class="form-control" id="patient">
                     <option model.bind="null">--select--</option>
                     <option repeat.for="patient of patients" model.bind="patient">${patient.displayName} (${patient.nhsNumber})</option>
                 </select>
-            </div>
+            </div>-->
             <div class="form-group">
                 <label for="eventMessageType">Event message type</label>
-                <select value.bind="selectedEventMessageType" class="form-control" id="eventMessageType" disabled.bind="!selectedPatient">
+                <select value.bind="selectedEventMessageType" class="form-control" id="eventMessageType">
+                    <!--disabled.bind="!selectedPatient">-->
                     <option model.bind="null">--select--</option>
                     <option repeat.for="eventMessageType of eventMessageTypes" model.bind="eventMessageType" selected>${eventMessageType.value}</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="publishMessagePreview">Message Preview</label>
-                <textarea class="form-control" id="publishMessagePreview" rows="10" value.bind="publishMessagePreview" disabled.bind="!selectedEventMessageType"></textarea>
+                <textarea class="form-control" id="publishMessagePreview" rows="10" value.bind="publishRequest.body" disabled></textarea>
             </div>
             <div class="form-group">
                 <label for="messageFormat">Message Format</label>
@@ -27,6 +30,57 @@
                     <option repeat.for="exampleMessageFormat of exampleMessageFormats" model.bind="exampleMessageFormat">${exampleMessageFormat.value}</option>
                 </select>
             </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#headersCollapse" aria-expanded="false" aria-controls="headersCollapse">
+                    Show/Hide HTTP Headers
+                </button>
+            </div>
+
+            <div class="collapse" id="headersCollapse">
+                <div class="well">
+                    <div class="form-group">
+                        <label for="fromASID">fromASID</label>
+                        <input type="text" class="form-control" id="fromASID" value.bind="publishRequest.fromAsid" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="toASID">toASID</label>
+                        <input type="text" class="form-control" id="toASID" value.bind="publishRequest.toAsid" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="interactionId">InteractionID</label>
+                        <input type="text" class="form-control" id="interactionId" value.bind="publishRequest.interactionId" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="jwt">JWT</label>
+                        <input type="text" class="form-control" id="jwt" value.bind="publishRequest.jwt" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="contentType">Content-Type</label>
+                        <input type="text" class="form-control" id="contentType" value.bind="selectedExampleMessageFormat.value" disabled />
+                    </div>
+                </div>
+                <div class="well">
+                    <div class="form-group">
+                        <h3>Response</h3>
+                    </div>
+                    <div class="form-group">
+                        <label for="responseStatus">Status</label>
+                        <input type="text" class="form-control" id="toASID" value.bind="response.statusCode + ' ' + response.statusText" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="ResponseBody">Body</label>
+                        <textarea class="form-control" id="ResponseBody" rows="10" value.bind="response.body" disabled></textarea>
+                    </div>
+                    <div class="form-group">
+                        <h4>Headers</h4>
+                    </div>
+                    <div class="form-group" repeat.for="key of response.headers | keys">
+                        <label for="header${key}">${key}</label>
+                        <input type="text" class="form-control" id="header${key}" value.bind="response.headers[key]" disabled />
+                    </div>
+                </div>
+            </div>
+
             <button type="submit" click.delegate="sendEvent()" class="btn btn-default" disabled.bind="!selectedEventMessageType">Send</button>
         </form>
     </section>

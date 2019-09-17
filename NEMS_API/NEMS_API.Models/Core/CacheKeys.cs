@@ -1,5 +1,4 @@
-﻿
-namespace NEMS_API.Models.Core
+﻿namespace NEMS_API.Models.Core
 {
     public class CacheKeys
     {
@@ -8,5 +7,8 @@ namespace NEMS_API.Models.Core
         public static string SubscriptionEntries = "SubscriptionEntries";
 
         public static string SdsEntries = "SdsEntries";
+
+        public static string SchemaProfile(string type) => "SchemaProfiles:" + type;
+
     }
 }

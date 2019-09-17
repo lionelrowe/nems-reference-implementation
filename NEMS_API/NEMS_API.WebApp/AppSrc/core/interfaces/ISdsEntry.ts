@@ -5,7 +5,7 @@
     endPoints?: string[];
     odsCode?: string;
     interactions?: string[];
-    asid?: string;
+    asid: string;
     thumbprint?: string;
     cacheKey?: string;
 }

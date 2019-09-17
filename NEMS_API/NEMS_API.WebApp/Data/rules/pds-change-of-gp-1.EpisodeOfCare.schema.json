@@ -1,0 +1,99 @@
+{
+    "type": "object",
+    "title": "CareConnect-EpisodeOfCare-1",
+    "required": [
+        "resourceType",
+        "id",
+        "meta",
+        "status",
+        "type",
+        "managingOrganization"
+    ],
+    "properties": {
+        "resourceType": {
+        "type": "string",
+        "const": "EpisodeOfCare"
+        },
+        "id": {
+        "type": "string"
+        },
+        "meta": {
+        "type": "object",
+        "required": [
+            "profile"
+        ],
+        "properties": {
+            "profile": {
+            "type": "array",
+            "uniqueItems": true,
+            "additionalItems": {},
+            "items": {
+                "type": "string",
+                "enum": [
+                "https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-EpisodeOfCare-1"
+                ]
+            }
+            }
+        }
+        },
+        "status": {
+        "type": "string",
+        "const": "finished"
+        },
+        "type": {
+        "type": "array",
+        "uniqueItems": true,
+        "additionalItems": {},
+        "items": {
+            "type": "object",
+            "required": [
+            "coding"
+            ],
+            "properties": {
+            "coding": {
+                "type": "array",
+                "uniqueItems": true,
+                "additionalItems": {},
+                "items": {
+                "type": "object",
+                "required": [
+                    "system",
+                    "code",
+                    "display"
+                ],
+                "properties": {
+                    "system": {
+                    "type": "string",
+                    "const": "https://fhir.nhs.uk/STU3/CodeSystem/EMS-PDS-PatientCareProvisionType-1"
+                    },
+                    "code": {
+                    "type": "string",
+                    "const": "1"
+                    },
+                    "display": {
+                    "type": "string",
+                    "const": "Primary care"
+                    }
+                }
+                }
+            }
+            }
+        }
+        },
+        "managingOrganization": {
+        "type": "object",
+        "required": [
+            "reference",
+            "display"
+        ],
+        "properties": {
+            "reference": {
+            "type": "string"
+            },
+            "display": {
+            "type": "string"
+            }
+        }
+        }
+    }
+}

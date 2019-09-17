@@ -2,6 +2,7 @@
 using NEMS_API.Core.Resources;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace NEMS_API.Core.Factories
@@ -12,16 +13,8 @@ namespace NEMS_API.Core.Factories
         {
             var outcome = Base(spineError);
 
-            outcome.Issue = new List<OperationOutcome.IssueComponent>
-            {
-                new OperationOutcome.IssueComponent
-                {
-                    Severity = issueSeverity,
-                    Code = issueType,
-                    Diagnostics = diagnostics,
-                    Details = details
-                }
-            };
+            outcome.Issue = new List<OperationOutcome.IssueComponent>();
+            outcome.Issue.Add(CreateIssue(issueSeverity, issueType, diagnostics, details));
 
             return outcome;
         }
@@ -52,6 +45,19 @@ namespace NEMS_API.Core.Factories
             var details = CreateDetails("INVALID_RESOURCE", "ResourceType is invalid");
 
             return CreateError($"The requested resource {resourceType} is invalid.", details, null);
+        }
+
+        public static OperationOutcome CreateInvalidResource(string property, List<string> issueDiagnostics)
+        {
+            var outcome = CreateInvalidResource(property, issueDiagnostics.First());
+            var issueDetails = outcome.Issue.First();
+
+            issueDiagnostics.Skip(1).ToList().ForEach(diagnostic => {
+
+                outcome.Issue.Add(CreateIssue(issueDetails.Severity.Value, issueDetails.Code.Value, diagnostic, issueDetails.Details));
+            });
+
+            return outcome;
         }
 
         public static OperationOutcome CreateInvalidResource(string property, string diagnostics = null)
@@ -217,6 +223,19 @@ namespace NEMS_API.Core.Factories
             }
 
             return details;
+        }
+
+        public static OperationOutcome.IssueComponent CreateIssue(OperationOutcome.IssueSeverity issueSeverity, OperationOutcome.IssueType issueType, string diagnostics, CodeableConcept details)
+        {
+            var issue = new OperationOutcome.IssueComponent
+            {
+                Severity = issueSeverity,
+                Code = issueType,
+                Diagnostics = diagnostics,
+                Details = details
+            };
+
+            return issue;
         }
 
         private static OperationOutcome Base(bool spineError)
