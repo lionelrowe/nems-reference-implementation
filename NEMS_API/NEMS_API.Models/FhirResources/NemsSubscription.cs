@@ -2,8 +2,6 @@
 using NEMS_API.Models.Core;
 using NEMS_API.Models.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 
 namespace NEMS_API.Models.FhirResources
@@ -14,6 +12,10 @@ namespace NEMS_API.Models.FhirResources
         {
 
         }
+
+        public string RequesterOdsCode { get; set; }
+
+        public string RequesterAsid { get; set; }
 
         public NemsSubscription(Subscription subscription)
         {
@@ -72,7 +74,7 @@ namespace NEMS_API.Models.FhirResources
             subscription.Contact = nemsSubscription.Contact;
             subscription.End = nemsSubscription.End;
             subscription.Reason = nemsSubscription.Reason;
-            subscription.Criteria = HttpUtility.HtmlEncode(nemsSubscription.Criteria);
+            subscription.Criteria = nemsSubscription.Criteria;
             subscription.Channel = nemsSubscription.Channel;
 
             return subscription;

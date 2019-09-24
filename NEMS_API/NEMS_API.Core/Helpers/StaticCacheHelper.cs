@@ -104,8 +104,20 @@ namespace NEMS_API.Core.Helpers
         {
             var now = DateTime.UtcNow;
 
-            int hour = (now.Hour >= 20) ? 8 : 20;
-            return new DateTimeOffset(new DateTime(now.Year, now.Month, now.Day, hour, 0, 0, 0, DateTimeKind.Utc));
+            var hour = 20 - now.Hour;
+
+            if (now.Hour >= 20)
+            {
+                hour = 12 - (now.Hour - 20);
+            }
+            else if (now.Hour < 8)
+            {
+                hour = 8 - now.Hour;
+            }
+
+            var future = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, 0, DateTimeKind.Utc).AddHours(hour);
+
+            return new DateTimeOffset(future);
         }
 
         private T GetCacheData<T>(string key) where T : class, new()

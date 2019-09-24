@@ -1,14 +1,14 @@
 ﻿using Hl7.Fhir.Model;
-using NEMS_API.Models.FhirResources;
+using NEMS_API.Models.Core;
 
 namespace NEMS_API.Core.Interfaces.Services
 {
     public interface ISubscribeService
     {
-        Subscription ReadEvent(string id);
+        Subscription ReadEvent(FhirRequest request);
 
-        Resource CreateEvent(Subscription subscription);
+        Resource CreateEvent(FhirRequest request);
 
-        void DeleteEvent(string id);
+        void DeleteEvent(FhirRequest request);
     }
 }

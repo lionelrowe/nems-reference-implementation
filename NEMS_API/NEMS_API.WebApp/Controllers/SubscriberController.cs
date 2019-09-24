@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using NEMS_API.Core.Exceptions;
 using NEMS_API.Core.Factories;
 using NEMS_API.Core.Interfaces.Services;
+using NEMS_API.Core.Resources;
+using NEMS_API.Models.Core;
 using NEMS_API.Models.FhirResources;
 using NEMS_API.WebApp.Core.Filters;
 
@@ -29,7 +31,9 @@ namespace NEMS_API.Controllers
         [HttpGet("{subscriptionId}")]
         public async Task<IActionResult> Read(string subscriptionId)
         {
-            var subscription = _subscribeService.ReadEvent(subscriptionId);
+            var request = FhirRequest.Create(subscriptionId, null, null, RequestingAsid());
+
+            var subscription = _subscribeService.ReadEvent(request);
 
             return Ok(subscription);
         }
@@ -44,7 +48,9 @@ namespace NEMS_API.Controllers
                 throw new HttpFhirException("Invalid Fhir Request", OperationOutcomeFactory.CreateInvalidResourceType(resource.ResourceType.ToString()), HttpStatusCode.BadRequest);
             }
 
-            var create = _subscribeService.CreateEvent(resource as Subscription);
+            var request = FhirRequest.Create(null, resource as Subscription, null, RequestingAsid());
+
+            var create = _subscribeService.CreateEvent(request);
 
             //TODO: depreciation warning
 
@@ -65,9 +71,22 @@ namespace NEMS_API.Controllers
         [HttpDelete("{subscriptionId}")]
         public async Task<IActionResult> Delete(string subscriptionId)
         {
-            _subscribeService.DeleteEvent(subscriptionId);
+            var request = FhirRequest.Create(subscriptionId, null, null, RequestingAsid());
+
+            _subscribeService.DeleteEvent(request);
 
             return Ok();
+        }
+
+        private string RequestingAsid()
+        {
+            if (Request.Headers.ContainsKey(FhirConstants.HeaderFromAsid))
+            {
+                return Request.Headers[FhirConstants.HeaderFromAsid];
+            }
+
+            //This should never be null as it's checked in the middleware
+            return null;
         }
 
     }

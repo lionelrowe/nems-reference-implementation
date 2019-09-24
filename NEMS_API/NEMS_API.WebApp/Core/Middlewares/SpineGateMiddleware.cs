@@ -42,7 +42,7 @@ namespace NEMS_API.WebApp.Core.Middlewares
             //Accept is optional but must be valid if supplied
             //Check is delegated to FhirInputMiddleware
 
-            var interactionIdMap = _nemsApiSettings.InteractionIdMap.FirstOrDefault(x => endpointPath.ToString().EndsWith(x.EndPoint) && x.HttpMethod.ToUpperInvariant().Equals(method.ToUpperInvariant()));
+            var interactionIdMap = _nemsApiSettings.InteractionIdMap.FirstOrDefault(x => endpointPath.ToString().StartsWith(x.EndPoint) && x.HttpMethod.ToUpperInvariant().Equals(method.ToUpperInvariant()));
             if (interactionIdMap == null)
             {
                 SetJwtError(HeaderNames.Authorization, "The request does not match the allowed interactions.");
@@ -73,9 +73,9 @@ namespace NEMS_API.WebApp.Core.Middlewares
 
             //Interaction 
             var interactionID = GetHeaderValue(headers, FhirConstants.HeaderInteractionID);
-            if (string.IsNullOrEmpty(interactionID) || !interactionID.Equals(interactionIdMap.InteractionId))
+            if (string.IsNullOrEmpty(interactionID) || clientCache.Interactions.FirstOrDefault(x => x.ToUpperInvariant() == interactionID.ToUpperInvariant()) == null)
             {
-                SetError(FhirConstants.HeaderInteractionID, null);
+                SetForbidden(FhirConstants.HeaderInteractionID);
             }
 
             //We've Passed! Continue to App...
@@ -101,14 +101,19 @@ namespace NEMS_API.WebApp.Core.Middlewares
             return headerValue;
         }
 
+        private void SetForbidden(string header)
+        {
+            throw new HttpFhirException("Subscription asid mismatch", OperationOutcomeFactory.CreateAccessDenied(), HttpStatusCode.Forbidden);
+        }
+
         private void SetError(string header, string diagnostics)
         {
-            //throw new HttpFhirException("Invalid/Missing Header", OperationOutcomeFactory.CreateInvalidHeader(header, diagnostics), HttpStatusCode.BadRequest);
+            throw new HttpFhirException("Invalid/Missing Header", OperationOutcomeFactory.CreateInvalidHeader(header, diagnostics), HttpStatusCode.BadRequest);
         }
 
         private void SetJwtError(string header, string diagnostics)
         {
-            //throw new HttpFhirException("Invalid/Missing Header", OperationOutcomeFactory.CreateInvalidJwtHeader(header, diagnostics), HttpStatusCode.BadRequest);
+            throw new HttpFhirException("Invalid/Missing Header", OperationOutcomeFactory.CreateInvalidJwtHeader(header, diagnostics), HttpStatusCode.BadRequest);
         }
     }
 

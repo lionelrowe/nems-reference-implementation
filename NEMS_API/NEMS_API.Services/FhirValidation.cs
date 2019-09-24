@@ -66,7 +66,6 @@ namespace NEMS_API.Services
                 return OperationOutcomeFactory.CreateInvalidResource("Subscription.Channel.Type", "Channel.Type must be of the value Message.");
             }
 
-            //TODO: Should we create a mapping between ficticious mailbox ids and ods codes?
             if (string.IsNullOrEmpty(subscription.Channel.Endpoint) || !FhirUri.IsValidValue(subscription.Channel.Endpoint))
             {
                 return OperationOutcomeFactory.CreateInvalidResource("Subscription.Channel.Endpoint", "Channel.Endpoint must be supplied.");
@@ -84,16 +83,21 @@ namespace NEMS_API.Services
                 return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].Use", "Contact[0].Use must be of the value work.");
             }
 
-            var odsRegex = new Regex("^https://directory.spineservices.nhs.uk/STU3/Organization/(.+)$");
+            var odsRegex = new Regex($"^{_nemsApiSettings.ResourceUrl.OrganisationReferenceUrl}(.+)$");
             var odsMatch = odsRegex.Match(subscription.Contact.First().Value);
 
             if (!odsMatch.Success)
             {
-                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].Value", "Contact[0].Use must be of the format https://directory.spineservices.nhs.uk/STU3/Organization/[Org_ODS_Code].");
+                return OperationOutcomeFactory.CreateInvalidResource("Subscription.Contact[0].Value", $"Contact[0].Use must be of the format {_nemsApiSettings.ResourceUrl.OrganisationReferenceUrl}[Org_ODS_Code].");
             }
 
-            //TODO: check subscription.Channel.Endpoint maps to subscription.Contact[0].Value ODS code
+            //TODO: check subscription.Channel.Endpoint (MESH mailbox id) maps to subscription.Contact[0].Value ODS code
             var odsCode = odsMatch.Groups.ElementAt(1).Value;
+
+            if (subscription.RequesterOdsCode != odsCode)
+            {
+                return OperationOutcomeFactory.CreateAccessDenied();
+            }
 
 
             //#CRITERIA

@@ -48,6 +48,8 @@ namespace NEMS_API.Models.Core
         public string EventCodesUrl { get; set; }
 
         public string NhsNumberSystem { get; set; }
+
+        public string OrganisationReferenceUrl { get; set; }
     }
 
     public class KvList

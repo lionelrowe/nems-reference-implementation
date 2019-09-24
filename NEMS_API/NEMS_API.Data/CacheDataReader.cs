@@ -20,7 +20,7 @@ namespace NEMS_API.Data
             var entries = _staticCacheHelper.GetEntry<List<T>>(data.CacheKey);
 
 
-            return entries.FirstOrDefault(x => x.Id == data.Id);
+            return entries?.FirstOrDefault(x => x.Id == data.Id);
         }
 
     }
