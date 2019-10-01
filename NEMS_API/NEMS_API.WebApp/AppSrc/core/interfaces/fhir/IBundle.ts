@@ -4,4 +4,5 @@ export interface IBundle<T> {
     resourceType: string; 
     type: string; 
     entry: IEntry<T>[];
+    id: string;
 }

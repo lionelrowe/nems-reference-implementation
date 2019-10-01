@@ -9,7 +9,9 @@ export class App {
         config.title = 'NEMS Demonstrator Apps';
         config.map([
             { route: [''], name: 'home', moduleId: PLATFORM.moduleName('./pages/Home/index'), nav: true, title: 'Home' },
-            { route: ['publisher'], name: 'publisher', moduleId: PLATFORM.moduleName('./pages/Publisher/index'), nav: true, title: 'Publisher' }
+            { route: ['publisher'], name: 'publisher', moduleId: PLATFORM.moduleName('./pages/Publisher/index'), nav: true, title: 'Publisher' },
+            { route: ['subscriber'], name: 'subscriber', moduleId: PLATFORM.moduleName('./pages/Subscriber/index'), nav: true, title: 'Subscriber' }
+
         ]);
 
         this.router = router;

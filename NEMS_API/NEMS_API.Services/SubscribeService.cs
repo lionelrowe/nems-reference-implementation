@@ -6,6 +6,7 @@ using NEMS_API.Core.Interfaces.Data;
 using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Models.Core;
 using NEMS_API.Models.FhirResources;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -33,6 +34,13 @@ namespace NEMS_API.Services
              var entry = ReadEventAsNems(request);
 
             return NemsSubscription.ToSubscription(entry);
+        }
+
+        public List<Subscription> SearchEvent(FhirRequest request)
+        {
+            var entry = _dataReader.Search<NemsSubscription>(new NemsSubscription());
+
+            return entry.Where(x => x.RequesterAsid == request.RequestingAsid).Select(NemsSubscription.ToSubscription).ToList();
         }
 
         public Resource CreateEvent(FhirRequest request)

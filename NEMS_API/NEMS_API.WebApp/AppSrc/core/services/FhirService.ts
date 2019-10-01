@@ -1,6 +1,7 @@
 ﻿import { IPatient } from "../interfaces/IPatient";
 import { IName } from "../interfaces/fhir/IName";
 import { IIdentifier } from "../interfaces/fhir/IIdentifier";
+import { IBundle } from "../interfaces/fhir/IBundle";
 
 export class FhirSvc {
 
@@ -29,6 +30,17 @@ export class FhirSvc {
         return "NHS NUMBER NOT STORED";
     }
 
+    public getCriteriaNhsNumber(criteria: string): string {
+
+        let system = "https://fhir.nhs.uk/Id/nhs-number|";
+        let start = criteria.indexOf(system);
+        let nhsNumber = criteria.substr(start + system.length, 10);
+
+        console.log(start, system.length, nhsNumber, criteria);
+
+        return nhsNumber;
+    }
+
     public getFhirRequestHeaders(altFormat?: string): { [key: string]: string }
     {
         let contentType = altFormat || "application/fhir+json";
@@ -39,5 +51,18 @@ export class FhirSvc {
     public isFhirXml(format: string): boolean {
 
         return ["application/fhir+xml", "application/xml+fhir"].indexOf(format) > -1;
+    }
+
+    public getBundleEntryResources<T>(bundle: IBundle<T>) {
+
+        let resources = new Array<T>();
+
+        if (bundle && bundle.entry && bundle.entry.length > 0) {
+            bundle.entry.forEach(entry => {
+                resources.push(entry.resource);
+            });
+        }
+
+        return resources;
     }
 }

@@ -19,10 +19,11 @@
     <None Remove="AppSrc\app.ts" />
     <None Remove="AppSrc\core\helpers\converters\index.ts" />
     <None Remove="AppSrc\core\helpers\converters\keys.ts" />
+    <None Remove="AppSrc\core\interfaces\IEndPoints.ts" />
+    <None Remove="AppSrc\core\interfaces\IExampleOptions.ts" />
     <None Remove="AppSrc\core\interfaces\IHttpRequest.ts" />
     <None Remove="AppSrc\core\interfaces\IHttpResponse.ts" />
     <None Remove="AppSrc\core\interfaces\IKeyValuePair.ts" />
-    <None Remove="AppSrc\core\interfaces\IPublishExampleOptions.ts" />
     <None Remove="AppSrc\core\interfaces\IRequest.ts" />
     <None Remove="AppSrc\core\interfaces\ISdsEntry.ts" />
     <None Remove="AppSrc\core\IPatient.ts" />
@@ -33,8 +34,11 @@
     <None Remove="AppSrc\core\services\ListService.ts" />
     <None Remove="AppSrc\core\services\PatientService.ts" />
     <None Remove="AppSrc\core\services\PublishService.ts" />
+    <None Remove="AppSrc\core\services\SubscribeService.ts" />
+    <None Remove="AppSrc\core\services\SubscriptionUtilsService.ts" />
     <None Remove="AppSrc\core\services\SystemService.ts" />
     <None Remove="AppSrc\core\services\WebApi.ts" />
+    <None Remove="AppSrc\pages\Subscriber\index.ts" />
     <None Remove="AppSrc\pages\Publisher\index.ts" />
     <None Remove="AppSrc\pages\Home\index.ts" />
     <None Remove="Data\definitions.xml.zip" />
@@ -82,15 +86,18 @@
     <TypeScriptCompile Include="AppSrc\app.ts" />
     <TypeScriptCompile Include="AppSrc\core\helpers\converters\index.ts" />
     <TypeScriptCompile Include="AppSrc\core\helpers\converters\keys.ts" />
+    <TypeScriptCompile Include="AppSrc\core\interfaces\IEndPoints.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IHttpResponse.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IKeyValuePair.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IPatient.ts" />
-    <TypeScriptCompile Include="AppSrc\core\interfaces\IPublishExampleOptions.ts" />
+    <TypeScriptCompile Include="AppSrc\core\interfaces\IExampleOptions.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IHttpRequest.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IRequest.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\ISdsEntry.ts" />
     <TypeScriptCompile Include="AppSrc\core\models\HttpRequest.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\JwtService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\SubscribeService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\SubscriptionUtilsService.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\PublishService.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\FhirService.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\ExampleService.ts" />
@@ -99,6 +106,7 @@
     <TypeScriptCompile Include="AppSrc\core\services\PatientService.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\WebApi.ts" />
     <TypeScriptCompile Include="AppSrc\main.ts" />
+    <TypeScriptCompile Include="AppSrc\pages\Subscriber\index.ts" />
     <TypeScriptCompile Include="AppSrc\pages\Publisher\index.ts" />
     <TypeScriptCompile Include="AppSrc\pages\Home\index.ts" />
   </ItemGroup>

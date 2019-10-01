@@ -1,12 +1,15 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.Extensions.Options;
+using NEMS_API.Core.Exceptions;
 using NEMS_API.Core.Factories;
 using NEMS_API.Core.Helpers;
 using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Core.Interfaces.Services;
+using NEMS_API.Core.Resources;
 using NEMS_API.Models.Core;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using SystemTasks = System.Threading.Tasks;
 
 namespace NEMS_API.Services
@@ -17,22 +20,26 @@ namespace NEMS_API.Services
         private readonly ISchemaValidationHelper _schemaValidationHelper;
         private readonly IStaticCacheHelper _staticCacheHelper;
         private readonly IFileHelper _fileHelper;
+        private readonly ISdsService _sdsService;
         private readonly NemsApiSettings _nemsApiSettings;
 
-        public PublishService(IOptions<NemsApiSettings> nemsApiSettings, IFhirValidation fhirValidation, ISchemaValidationHelper schemaValidationHelper, IStaticCacheHelper staticCacheHelper, IFileHelper fileHelper)
+        public PublishService(IOptions<NemsApiSettings> nemsApiSettings, IFhirValidation fhirValidation, ISchemaValidationHelper schemaValidationHelper, 
+            IStaticCacheHelper staticCacheHelper, IFileHelper fileHelper, ISdsService sdsService)
         {
             _fhirValidation = fhirValidation;
             _schemaValidationHelper = schemaValidationHelper;
             _staticCacheHelper = staticCacheHelper;
             _fileHelper = fileHelper;
+            _sdsService = sdsService;
             _nemsApiSettings = nemsApiSettings.Value;
         }
 
-        public async SystemTasks.Task<OperationOutcome> PublishEvent(Bundle bundle)
+        public async SystemTasks.Task<OperationOutcome> PublishEvent(FhirRequest request)
         {
             //## Core validation ##
 
             //Bundle
+            var bundle = request.Resource as Bundle;
             var meta = bundle.Meta;
             bundle.Meta = meta ?? new Meta();
             bundle.Meta.Profile = new List<string> { _nemsApiSettings.ResourceUrl.BundleProfileUrl }; //reset profile
@@ -69,7 +76,21 @@ namespace NEMS_API.Services
           
             var eventType = header.Event.Code;
 
-            if(_nemsApiSettings.SupportedEventTypes.Count > 0 && !_nemsApiSettings.SupportedEventTypes.Contains(eventType))
+            var client = _sdsService.GetFor(request.RequestingAsid);
+
+            if (client == null)
+            {
+                throw new HttpFhirException("Invalid/Missing Header", OperationOutcomeFactory.CreateInvalidHeader("fromASID", null), HttpStatusCode.BadRequest);
+            }
+
+            var eventTypeInteractionId = FhirConstants.IIPublishEvent(eventType);
+
+            if (!client.Interactions.Contains(eventTypeInteractionId))
+            {
+                throw new HttpFhirException("Publisher asid does not have access to perform this Interaction", OperationOutcomeFactory.CreateAccessDenied(), HttpStatusCode.Forbidden);
+            }
+
+            if (_nemsApiSettings.SupportedEventTypes.Count > 0 && !_nemsApiSettings.SupportedEventTypes.Contains(eventType))
             {
                 var schemaMessage = $"Supplied bundle passed basic FHIR validation but event of type {eventType} is not currently supported.";
 

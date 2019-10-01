@@ -25,11 +25,15 @@ namespace NEMS_API.Models.Core
 
         public bool MessageHeaderValidationOnly { get; set; }
 
+        public bool SkipSpineGateWay { get; set; }
+
         public string PatientFile { get; set; }
 
         public string SdsFile { get; set; }
 
         public string SpineASID { get; set; }
+
+        public string MeshMailboxId { get; set; }
 
         public List<InteractionIdMap> InteractionIdMap { get; set; }
 

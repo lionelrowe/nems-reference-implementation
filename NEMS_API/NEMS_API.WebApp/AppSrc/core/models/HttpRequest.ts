@@ -14,8 +14,11 @@ export class HttpRequest implements IRequest {
     constructor(request?: IRequest) {
 
         if (request) {
-            if (request.method) {
-                this.method = request.method;
+
+            for (let key in request) {
+                if (request.hasOwnProperty(key) && request[key]) {
+                    this[key] = request[key];
+                }
             }
         }
     }

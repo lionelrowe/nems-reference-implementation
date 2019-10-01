@@ -6,4 +6,14 @@
 
 body {
     background-color: $clr-aliceblue;
+
+    .page-host {
+        margin-top: 50px;
+    }
+}
+
+.sub-minimal {
+    .sub-criteria, .sub-status, .sub-endpoint, .sub-action {
+        display: none;
+    }
 }

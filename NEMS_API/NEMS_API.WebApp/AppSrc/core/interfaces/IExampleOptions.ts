@@ -1,4 +1,4 @@
-﻿export interface IPublishExampleOptions {
+﻿export interface IExampleOptions {
     nhsNumber?: string;
     eventMessageTypeId?: string;
 }

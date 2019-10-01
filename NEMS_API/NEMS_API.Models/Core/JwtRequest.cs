@@ -24,6 +24,10 @@ namespace NEMS_API.Models.Core
 
         public string RequestingUser { get; set; }
 
+        public string ScopeResource { get; set; }
+
+        public string ScopeAction { get; set; }
+
         public string OdsCode { get; set; }
 
         public string Asid { get; set; }
@@ -54,6 +58,11 @@ namespace NEMS_API.Models.Core
             ReasonForRequest = "directcare";
 
             Scope = "patient/*.*";
+
+            if(!string.IsNullOrEmpty(ScopeResource) && !string.IsNullOrEmpty(ScopeAction))
+            {
+                Scope = $"patient/{ScopeResource}.{ScopeAction}";
+            }
 
             if (string.IsNullOrWhiteSpace(RequestingSystem) && string.IsNullOrWhiteSpace(Asid))
             {

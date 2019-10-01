@@ -6,7 +6,7 @@ import { IHttpRequest } from '../interfaces/IHttpRequest';
 @inject(WebAPI)
 export class SystemSvc {
 
-    baseUrl: string = 'AppUtilities/Systems';
+    baseUrl: string = 'AppUtilities/RequestHelper';
     query: string = '';
 
     constructor(private api: WebAPI) { }
@@ -16,13 +16,19 @@ export class SystemSvc {
      * @returns A publisher system details.
      */
     getDefaultPublisher() {
-        let response = this.api.do<ISdsEntry>({ url: `${this.baseUrl}/DefaultPublisher${this.query}`, method: 'get' } as IHttpRequest);
+        let response = this.api.do<ISdsEntry>({ url: `${this.baseUrl}/GetDefaultPublisherSystem${this.query}`, method: 'get' } as IHttpRequest);
+
+        return response;
+    }
+
+    getSubscribers() {
+        let response = this.api.do<ISdsEntry[]>({ url: `${this.baseUrl}/GetSubscriberSystems${this.query}`, method: 'get' } as IHttpRequest);
 
         return response;
     }
 
     getSpine() {
-        let response = this.api.do<ISdsEntry>({url: `${this.baseUrl}/Spine${this.query}`, method: 'get'} as IHttpRequest);
+        let response = this.api.do<ISdsEntry>({ url: `${this.baseUrl}/GetSpineSystem${this.query}`, method: 'get'} as IHttpRequest);
 
         return response;
     }

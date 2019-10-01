@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Subscription xmlns="http://hl7.org/fhir">
+  <id value="623f813a-1e3f-4218-9c89-571d7623185b"/>
+  <meta>
+    <profile value="https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"/>
+  </meta>
+  <status value="requested"/>
+  <contact>
+    <system value="url"/>
+    <value value="https://directory.spineservices.nhs.uk/STU3/Organization/SUB01"/>
+    <use value="work"/>
+  </contact>
+  <reason value="Health visiting service responsible for Leeds"/>
+  <criteria value="/Bundle?type=message&amp;serviceType=UHV&amp;Patient.identifier=https://fhir.nhs.uk/Id/nhs-number|9434765919&amp;MessageHeader.event=pds-change-of-address-1&amp;Patient.age=gt5&amp;Patient.age=lt19" />
+  <channel>
+    <type value="message"/>
+    <endpoint value="SUB01_200000000115"/>
+  </channel>
+</Subscription>

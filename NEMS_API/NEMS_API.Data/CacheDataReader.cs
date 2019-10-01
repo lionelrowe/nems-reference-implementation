@@ -23,5 +23,13 @@ namespace NEMS_API.Data
             return entries?.FirstOrDefault(x => x.Id == data.Id);
         }
 
+        public List<T> Search<T>(T data) where T : class, IDataItem, new()
+        {
+            var entries = _staticCacheHelper.GetEntry<List<T>>(data.CacheKey);
+
+            //TODO: Search Criteria
+            return entries ?? new List<T>();
+        }
+
     }
 }

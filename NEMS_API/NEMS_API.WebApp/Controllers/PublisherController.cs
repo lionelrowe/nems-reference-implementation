@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using NEMS_API.Core.Exceptions;
-using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Core.Interfaces.Services;
+using NEMS_API.Core.Resources;
 using NEMS_API.Models.Core;
 using NEMS_API.WebApp.Core.Filters;
 using NEMS_API.WebApp.Core.Filters.Attributes;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-//using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
 
 namespace NEMS_API.Controllers
 {
@@ -25,13 +14,11 @@ namespace NEMS_API.Controllers
     public class PublisherController : Controller
     {
         private readonly IPublishService _publishService;
-        private readonly IFileHelper _fileHelper;
         private readonly NemsApiSettings _nemsApiSettings;
 
-        public PublisherController(IOptions<NemsApiSettings> nemsApiSettings, IPublishService publishService, IFileHelper fileHelper)
+        public PublisherController(IOptions<NemsApiSettings> nemsApiSettings, IPublishService publishService)
         {
             _publishService = publishService;
-            _fileHelper = fileHelper;
             _nemsApiSettings = nemsApiSettings.Value;
         }
 
@@ -50,7 +37,9 @@ namespace NEMS_API.Controllers
         [HttpPost("$process-message")]
         public async Task<IActionResult> Post([FromBody] Resource resource)
         {
-            var published = await _publishService.PublishEvent(resource as Bundle);   
+            var request = FhirRequest.Create(null, resource, null, RequestingAsid());
+
+            var published = await _publishService.PublishEvent(request);   
 
             if (!published.Success)
             {
@@ -62,6 +51,16 @@ namespace NEMS_API.Controllers
             return Accepted();
         }
 
+        private string RequestingAsid()
+        {
+            if (Request.Headers.ContainsKey(FhirConstants.HeaderFromAsid))
+            {
+                return Request.Headers[FhirConstants.HeaderFromAsid];
+            }
+
+            //This should never be null as it's checked in the middleware
+            return null;
+        }
 
 
     }

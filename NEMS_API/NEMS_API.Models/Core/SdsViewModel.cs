@@ -22,6 +22,8 @@ namespace NEMS_API.Models.Core
 
         public string Thumbprint { get; set; }
 
+        public string MeshMailboxId { get; set; }
+
         //public bool Active { get; set; }
 
         public string CacheKey

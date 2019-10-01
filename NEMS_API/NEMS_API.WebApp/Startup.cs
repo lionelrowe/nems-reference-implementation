@@ -121,7 +121,7 @@ namespace NEMS_API
             //handle compression as per spec
             app.UseFhirInputMiddleware();
 
-            app.UseWhen(context => context.Request.Path.StartsWithSegments(new PathString("/nems-ri/STU3")),
+            app.UseWhen(context => context.Request.Path.StartsWithSegments(new PathString("/nems-ri/STU3")) && !nemsApiSettings.Value.SkipSpineGateWay,
                 a => a.UseSpineGateMiddleware()
             );
 

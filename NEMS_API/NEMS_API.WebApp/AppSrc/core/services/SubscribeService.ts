@@ -7,9 +7,9 @@ import { IHttpRequest } from '../interfaces/IHttpRequest';
 import { IHttpResponse } from '../interfaces/IHttpResponse';
 
 @inject(WebAPI, FhirSvc)
-export class PublishSvc {
+export class SubscribeSvc {
 
-    baseUrl: string = 'STU3/Events/1';
+    baseUrl: string = 'STU3/Subscription';
     query: string = '';
 
     constructor(private api: WebAPI, private fhirSvc: FhirSvc) { }
@@ -18,7 +18,7 @@ export class PublishSvc {
      * Requests a new example based on selected Patient and Event Message Type.
      * @returns A FHIR Bundle of type Message.
      */
-    publishEvent(request: IRequest) {
+    deleteSubscription(request: IRequest) {
 
         let headers = this.fhirSvc.getFhirRequestHeaders(request.contentType);
 
@@ -29,7 +29,7 @@ export class PublishSvc {
 
         let isText = this.fhirSvc.isFhirXml(request.contentType);
 
-        let event = this.api.do<IHttpResponse<any>>({ url: `${this.baseUrl}/$process-message${this.query}`, body: request.body, method: request.method, headers: headers, asText: isText, returnResponse: true } as IHttpRequest);
+        let event = this.api.do<IHttpResponse<any>>({ url: `${this.baseUrl}/${request.endPoint}${this.query}`, body: request.body, method: request.method, headers: headers, asText: isText, returnResponse: true } as IHttpRequest);
 
         return event;
     }

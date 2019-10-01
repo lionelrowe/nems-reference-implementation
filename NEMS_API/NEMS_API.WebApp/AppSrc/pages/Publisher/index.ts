@@ -5,7 +5,7 @@ import { IKeyValuePair } from "../../core/interfaces/IKeyValuePair";
 import { ExampleSvc } from "../../core/services/ExampleService";
 import { ListSvc } from "../../core/services/ListService";
 import { SystemSvc } from "../../core/services/SystemService";
-import { IPublishExampleOptions } from "../../core/interfaces/IPublishExampleOptions";
+import { IExampleOptions } from "../../core/interfaces/IExampleOptions";
 import { ISdsEntry } from "../../core/interfaces/ISdsEntry";
 import { IRequest } from "../../core/interfaces/IRequest";
 import { HttpRequest } from "../../core/models/HttpRequest";
@@ -90,7 +90,7 @@ export class Publisher {
 
             let odsCode = publisher.odsCode || "";
 
-            this.jwtSvc.generate(odsCode, publisher.asid).then(jwt => {
+            this.jwtSvc.generate(odsCode, publisher.asid, "Bundle", "write").then(jwt => {
 
                 this.publishRequest.jwt = jwt;
             });
@@ -152,7 +152,7 @@ export class Publisher {
 
         this.publishRequest.body = "";
 
-        let options: IPublishExampleOptions = {
+        let options: IExampleOptions = {
             nhsNumber: (/*this.selectedPatient || */{ nhsNumber: undefined }).nhsNumber,
             eventMessageTypeId: (this.selectedEventMessageType || { key: undefined}).key
         };

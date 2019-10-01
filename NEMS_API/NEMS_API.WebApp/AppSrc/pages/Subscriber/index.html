@@ -1,0 +1,126 @@
+﻿<template>
+    <require from="core/helpers/converters/keys"></require>
+
+    <section class="container">
+        <h1 class="h1">${heading}</h1>
+        <hr />
+
+        <form>
+            <div class="form-group">
+                <label for="subscriberSelect">Select a Subscriber</label>
+                <spinner-msg message="Loading Subscribers" logic.one-way="loadingSubscribers"></spinner-msg>
+                <select value.bind="selectedSubscriber" class="form-control" id="subscriberSelect" show.bind="!loadingSubscribers">
+                    <option model.bind="null">--select--</option>
+                    <option repeat.for="sub of subscribers" model.bind="sub" selected>${sub.odsCode}</option>
+                </select>
+            </div>
+        </form>
+
+        <spinner-msg message="Checking Subscriptions" logic.one-way="subscriberLayout.loading"></spinner-msg>
+
+        <div class="row" show.bind="selectedSubscriber && (!subscriptions || subscriptions.length === 0)">
+            <div class="col-xs-12">
+                <p>No Subscriptions found for ${selectedSubscriber.odsCode}</p>
+            </div>
+        </div>
+
+        <div class="row" show.bind="selectedSubscriber && subscriptions && subscriptions.length > 0">
+            <div class.bind="subscriberLayout.subscriptionsListClass">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="sub-id">ID</th>
+                            <th class="sub-criteria">Criteria</th>
+                            <th class="sub-status">Status</th>
+                            <th class="sub-endpoint">Endpoint</th>
+                            <th class="sub-action">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr repeat.for="sub of subscriptions" class.bind="subscriberLayout.activeSubscriptionClass[sub.id]">
+                            <td class="sub-id">${sub.id}</td>
+                            <td class="sub-criteria">${sub.criteria}</td>
+                            <td class="sub-status">${sub.status}</td>
+                            <td class="sub-endpoint">${sub.channel.endpoint}</td>
+                            <td class="sub-action">
+                                <button class="btn btn-default" click.delegate="showSubscription(sub)">View</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-8" show.bind="subscriberLayout.showSubscription">
+                <div class="container-fluid">
+                    <h3>Subscription Details <button click.delegate="hideSubscription()" class="btn btn-default pull-right">Hide</button></h3>
+                    <form>
+                        <div class="form-group">
+                            <label for="subscribeMessagePreview">Subscription Preview</label>
+                            <textarea class="form-control" id="subscribeMessagePreview" rows="10" value.bind="subscribeRequest.body" disabled></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="messageFormat">Message Format</label>
+                            <select value.bind="selectedExampleMessageFormat" class="form-control" id="messageFormat">
+                                <option repeat.for="exampleMessageFormat of exampleMessageFormats" model.bind="exampleMessageFormat">${exampleMessageFormat.value}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#headersCollapse" aria-expanded="false" aria-controls="headersCollapse">
+                                Show/Hide HTTP Headers
+                            </button>
+                        </div>
+
+                        <div class="collapse" id="headersCollapse">
+                            <div class="well">
+                                <div class="form-group">
+                                    <label for="fromASID">fromASID</label>
+                                    <input type="text" class="form-control" id="fromASID" value.bind="subscribeRequest.fromAsid" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="toASID">toASID</label>
+                                    <input type="text" class="form-control" id="toASID" value.bind="subscribeRequest.toAsid" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="interactionId">InteractionID</label>
+                                    <input type="text" class="form-control" id="interactionId" value.bind="subscribeRequest.interactionId" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="jwt">JWT</label>
+                                    <input type="text" class="form-control" id="jwt" value.bind="subscribeRequest.jwt" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="contentType">Content-Type</label>
+                                    <input type="text" class="form-control" id="contentType" value.bind="subscribeRequest.contentType" disabled />
+                                </div>
+                            </div>
+                            <div class="well">
+                                <div class="form-group">
+                                    <h3>Response</h3>
+                                </div>
+                                <div class="form-group">
+                                    <label for="responseStatus">Status</label>
+                                    <input type="text" class="form-control" id="toASID" value.bind="response.statusCode + ' ' + response.statusText" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="ResponseBody">Body</label>
+                                    <textarea class="form-control" id="ResponseBody" rows="10" value.bind="response.body" disabled></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <h4>Headers</h4>
+                                </div>
+                                <div class="form-group" repeat.for="key of response.headers | keys">
+                                    <label for="header${key}">${key}</label>
+                                    <input type="text" class="form-control" id="header${key}" value.bind="response.headers[key]" disabled />
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" click.delegate="delete()" class="btn btn-danger">Delete</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+</template>

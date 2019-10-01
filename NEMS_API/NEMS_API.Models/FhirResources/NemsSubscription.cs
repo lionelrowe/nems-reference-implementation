@@ -69,6 +69,7 @@ namespace NEMS_API.Models.FhirResources
         public static Subscription ToSubscription(NemsSubscription nemsSubscription)
         {
             var subscription = new Subscription();
+            subscription.Id = nemsSubscription.Id;
             subscription.Meta = nemsSubscription.Meta;
             subscription.Status = nemsSubscription.Status;
             subscription.Contact = nemsSubscription.Contact;

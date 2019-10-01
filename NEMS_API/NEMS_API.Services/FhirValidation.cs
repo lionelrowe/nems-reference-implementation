@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.Extensions.Options;
+using NEMS_API.Core.Exceptions;
 using NEMS_API.Core.Factories;
 using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Core.Interfaces.Services;
@@ -7,6 +8,7 @@ using NEMS_API.Models.Core;
 using NEMS_API.Models.FhirResources;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace NEMS_API.Services
@@ -14,11 +16,13 @@ namespace NEMS_API.Services
     public class FhirValidation : IFhirValidation
     {
         private readonly IValidationHelper _validationHelper;
+        private readonly ISdsService _sdsService;
         private readonly NemsApiSettings _nemsApiSettings;
 
-        public FhirValidation(IOptions<NemsApiSettings> nemsApiSettings, IValidationHelper validationHelper)
+        public FhirValidation(IOptions<NemsApiSettings> nemsApiSettings, IValidationHelper validationHelper, ISdsService sdsService)
         {
             _validationHelper = validationHelper;
+            _sdsService = sdsService;
             _nemsApiSettings = nemsApiSettings.Value;
         }
 
@@ -97,6 +101,18 @@ namespace NEMS_API.Services
             if (subscription.RequesterOdsCode != odsCode)
             {
                 return OperationOutcomeFactory.CreateAccessDenied();
+            }
+
+            var client = _sdsService.GetFor(subscription.RequesterAsid);
+
+            if (client == null)
+            {
+                throw new HttpFhirException("Invalid/Missing Header", OperationOutcomeFactory.CreateInvalidHeader("fromASID", null), HttpStatusCode.BadRequest);
+            }
+
+            if(subscription.Channel.Endpoint != client.MeshMailboxId)
+            {
+                throw new HttpFhirException("Subscriber MESH Mailbox is not associated with the supplied ODS code", OperationOutcomeFactory.CreateAccessDenied(), HttpStatusCode.Forbidden);
             }
 
 
