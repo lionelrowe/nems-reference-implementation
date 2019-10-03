@@ -10,9 +10,24 @@ export class ExampleSvc {
 
     baseUrl: string = 'AppUtilities/Example';
     query: string = '';
-    endPoints: IEndPoints = { publish: "Publish", subscribe: "Subscribe" };
+    endPoints: IEndPoints = { publish: "Publish", subscribe: "Subscribe", convert: "Convert" };
 
     constructor(private api: WebAPI, private fhirSvc: FhirSvc) { }
+
+    /**
+     * Requests a new example based on selected Patient and Event Message Type.
+     * @returns A FHIR Bundle of type Message.
+     */
+    convert(example: any, format: string) {
+
+        let headers = this.fhirSvc.getFhirRequestHeaders(undefined, format);
+
+        example = JSON.stringify(example);
+
+        let resource = this.api.do<any>({ url: `${this.baseUrl}/${this.endPoints.convert}`, body: example, method: 'post', headers: headers, asText: true } as IHttpRequest);
+
+        return resource;
+    }
 
     /**
      * Requests a new example based on selected Patient and Event Message Type.
@@ -27,10 +42,11 @@ export class ExampleSvc {
      * Requests a new example subscription based on selected Patient.
      * @returns A FHIR Subscription of type Message.
      */
-    generateSubscribe(criteria: string, format: string) {
+    generateSubscribe(criteria: string, asid: string, format: string) {
 
         let exampleOptions: IExampleOptions = {
-            nhsNumber: this.fhirSvc.getCriteriaNhsNumber(criteria)
+            nhsNumber: !criteria ? "" : this.fhirSvc.getCriteriaNhsNumber(criteria),
+            asid: asid
         };
 
         return this.generateExample(exampleOptions, format, this.endPoints.subscribe);

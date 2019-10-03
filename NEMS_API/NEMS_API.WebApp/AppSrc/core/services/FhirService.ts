@@ -5,6 +5,8 @@ import { IBundle } from "../interfaces/fhir/IBundle";
 
 export class FhirSvc {
 
+    public jsonContentType: string = "application/fhir+json";
+
     public getPatientDisplayName(patient: IPatient): string {
         let officialName = $.grep(patient.name || new Array<IName>(), (element: IName, index) => {
             return element.use === "official";
@@ -36,16 +38,16 @@ export class FhirSvc {
         let start = criteria.indexOf(system);
         let nhsNumber = criteria.substr(start + system.length, 10);
 
-        console.log(start, system.length, nhsNumber, criteria);
-
         return nhsNumber;
     }
 
-    public getFhirRequestHeaders(altFormat?: string): { [key: string]: string }
+    public getFhirRequestHeaders(contentFormat?: string, acceptFormat?: string): { [key: string]: string }
     {
-        let contentType = altFormat || "application/fhir+json";
+        let contentType = contentFormat || "application/fhir+json";
 
-        return { "Accept": contentType, "Content-Type": contentType };
+        let accept = acceptFormat || contentType;
+
+        return { "Accept": accept, "Content-Type": contentType };
     }
 
     public isFhirXml(format: string): boolean {

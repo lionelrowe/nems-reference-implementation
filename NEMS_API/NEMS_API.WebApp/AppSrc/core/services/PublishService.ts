@@ -29,11 +29,21 @@ export class PublishSvc {
 
         let isText = this.fhirSvc.isFhirXml(request.contentType);
 
-        let event = this.api.do<IHttpResponse<any>>({ url: `${this.baseUrl}/$process-message${this.query}`, body: request.body, method: request.method, headers: headers, asText: isText, returnResponse: true } as IHttpRequest);
+        if (!isText && typeof request.body === "string") {
+            request.body = JSON.parse(request.body);
+        }
+
+        let event = this.api.do<IHttpResponse<any>>({ url: this.publishPath, body: request.body, method: request.method, headers: headers, asText: isText, returnResponse: true } as IHttpRequest);
 
         return event;
     }
 
-   
+    get publishEndpoint() {
+        return `${this.api.hostAddress}${this.publishPath}`;
+    }
+
+    get publishPath() {
+        return `${this.baseUrl}/$process-message${this.query}`;
+    }
 
 }

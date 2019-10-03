@@ -28,6 +28,8 @@ export class Subscriber {
 
     subscribeRequest: IRequest = new HttpRequest({ method: "post" } as IRequest); 
 
+    exampleMessageBody?: string;
+
     exampleMessageFormats: IKeyValuePair[];
 
     subscriptions: INemsSubscription[];
@@ -38,7 +40,12 @@ export class Subscriber {
     selectedExampleMessageFormat: IKeyValuePair;
 
     subscriberLayout: any = {
-        subscriptionsListClass: "col-xs-12", showSubscription: false, activeSubscriptionClass: {}, activeSubscription: {}, loading: true
+        subscriptionsListClass: "col-xs-12",
+        showSubscription: false,
+        activeSubscriptionClass: {},
+        activeSubscription: {},
+        creating: false,
+        loading: true
     };
     
 
@@ -57,13 +64,30 @@ export class Subscriber {
         this.subscriberLayout.activeSubscription = sub;
         this.subscriberLayout.showSubscription = true;
         this.subscriberLayout.subscriptionsListClass = "col-xs-4 sub-minimal";
-        this.subscriberLayout.activeSubscriptionClass[sub.id] = "active";
+        this.subscriberLayout.activeSubscriptionClass = {};
+        this.subscriberLayout.activeSubscriptionClass[sub.id] = "warning";
+        this.subscriberLayout.creating = false;
 
-        this.getExample();
+        this.convertExample();
 
         this.prepDeleteEvent();      
 
     }
+
+    public showNewSubscription() {
+
+        this.subscriberLayout.showSubscription = true;
+        this.subscriberLayout.subscriptionsListClass = "col-xs-4 sub-minimal";
+        this.subscriberLayout.activeSubscriptionClass = {};
+        this.subscriberLayout.activeSubscription = {};
+        this.subscriberLayout.creating = true;
+
+        this.prepCreateEvent();
+
+        this.getExample();
+    }
+
+
 
     private hideSubscription() {
 
@@ -71,6 +95,7 @@ export class Subscriber {
         this.subscriberLayout.subscriptionsListClass = "col-xs-12";
         this.subscriberLayout.activeSubscription = {};
         this.subscriberLayout.activeSubscriptionClass = {};
+        this.subscriberLayout.creating = false;
     }
 
     private getSubscribers() {
@@ -106,19 +131,37 @@ export class Subscriber {
         return (ids || new Array<string>()).find(ia => { return ia.indexOf(key) > -1; }) || "";
     }
 
+    public prepCreateEvent() {
+
+        this.subscribeRequest.method = "post";
+        this.subscribeRequest.interactionId = this.getInteractionId("ApiPost", this.selectedSubscriber.interactions);
+        this.subscribeRequest.endPoint = this.subscribeSvc.subscribeEndpoint;
+
+    }
+
     private prepDeleteEvent() {
         this.subscribeRequest.method = "delete";
         this.subscribeRequest.interactionId = this.getInteractionId("ApiDelete", this.selectedSubscriber.interactions);
-        this.subscribeRequest.endPoint = this.subscriberLayout.activeSubscription.id;
+        this.subscribeRequest.endPoint = `${this.subscribeSvc.subscribeEndpoint}/${this.subscriberLayout.activeSubscription.id}`;
     }
 
-    private delete(): void {
-        this.subscribeSvc.deleteSubscription(this.subscribeRequest).then(res => {
-            this.response = res;
-            console.log(res.headers);
+    private send(): void {
 
-            if (this.response.statusCode === 200) {
-                this.hideSubscription();
+        this.subscribeRequest.running = true;
+        this.response = undefined;
+
+        this.subscribeSvc.sendCommand(this.subscribeRequest).then(res => {
+
+            if (typeof res.body == "object") {
+                res.body = JSON.stringify(res.body, null, 2);
+            }
+
+            this.subscribeRequest.running = false;
+
+            this.response = res;
+
+            if ([200, 201].indexOf(this.response.statusCode) > -1) {
+
                 this.getSubscriptions();
             }
         });
@@ -149,7 +192,12 @@ export class Subscriber {
 
         this.selectedExampleMessageFormat = newValue;
         this.subscribeRequest.contentType = newValue.value;
-        this.getExample();
+
+        if (this.subscriberLayout.creating) {
+            this.getExample();
+        } else {
+            this.convertExample();
+        }
     }
 
     private selectedSubscriberChanged(newValue: ISdsEntry, oldValue: ISdsEntry) {
@@ -158,6 +206,7 @@ export class Subscriber {
             return true;
         }
 
+        this.hideSubscription();
         this.setSelectedSubscriber(newValue);
     }
 
@@ -180,10 +229,21 @@ export class Subscriber {
 
     private getExample() {
 
-        this.subscribeRequest.body = "";
+        this.response = undefined;
+        this.subscribeRequest.body = this.exampleMessageBody = "";
 
-        this.exampleSvc.generateSubscribe(this.subscriberLayout.activeSubscription.criteria, this.selectedExampleMessageFormat.value).then(example => {
-            this.subscribeRequest.body = example;
+        this.exampleSvc.generateSubscribe(this.subscriberLayout.activeSubscription.criteria, this.selectedSubscriber.asid, this.selectedExampleMessageFormat.value).then(example => {
+            this.subscribeRequest.body = this.exampleMessageBody = example;
+        });
+    }
+
+    private convertExample() {
+
+        this.response = undefined;
+        this.subscribeRequest.body = this.exampleMessageBody = "";
+
+        this.exampleSvc.convert(this.subscriberLayout.activeSubscription, this.selectedExampleMessageFormat.value).then(example => {
+            this.subscribeRequest.body = this.exampleMessageBody = example;
         });
     }
 }

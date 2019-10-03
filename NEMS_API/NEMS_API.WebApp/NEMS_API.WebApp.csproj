@@ -19,6 +19,7 @@
     <None Remove="AppSrc\app.ts" />
     <None Remove="AppSrc\core\helpers\converters\index.ts" />
     <None Remove="AppSrc\core\helpers\converters\keys.ts" />
+    <None Remove="AppSrc\core\helpers\converters\uppercase.ts" />
     <None Remove="AppSrc\core\interfaces\IEndPoints.ts" />
     <None Remove="AppSrc\core\interfaces\IExampleOptions.ts" />
     <None Remove="AppSrc\core\interfaces\IHttpRequest.ts" />
@@ -86,6 +87,7 @@
     <TypeScriptCompile Include="AppSrc\app.ts" />
     <TypeScriptCompile Include="AppSrc\core\helpers\converters\index.ts" />
     <TypeScriptCompile Include="AppSrc\core\helpers\converters\keys.ts" />
+    <TypeScriptCompile Include="AppSrc\core\helpers\converters\uppercase.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IEndPoints.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IHttpResponse.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IKeyValuePair.ts" />

@@ -6,5 +6,7 @@
 
         public string EventMessageTypeId { get; set; }
 
+        public string Asid { get; set; }
+
     }
 }

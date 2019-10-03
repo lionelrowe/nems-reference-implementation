@@ -34,6 +34,8 @@ export class Publisher {
 
     publishRequest: IRequest = new HttpRequest({ method: "post" } as IRequest); 
 
+    exampleMessageBody?: string;
+
     exampleMessageFormats: IKeyValuePair[];
 
     response?: IHttpResponse<any>;
@@ -87,6 +89,7 @@ export class Publisher {
             this.defaultPublisher = publisher;   
 
             this.publishRequest.fromAsid = publisher.asid;
+            this.publishRequest.endPoint = this.publishSvc.publishEndpoint;
 
             let odsCode = publisher.odsCode || "";
 
@@ -115,9 +118,18 @@ export class Publisher {
     }
 
     private sendEvent(): void {
+
+        this.publishRequest.running = true;
+        this.response = undefined;
+
         this.publishSvc.publishEvent(this.publishRequest).then(res => {
+
+            if (typeof res.body == "object") {
+                res.body = JSON.stringify(res.body, null, 2);
+            }
+
             this.response = res;
-            console.log(res.headers);
+            this.publishRequest.running = false;
         });
     }
 
@@ -150,7 +162,8 @@ export class Publisher {
             return true;
         }
 
-        this.publishRequest.body = "";
+        this.response = undefined;
+        this.publishRequest.body = this.exampleMessageBody = "";
 
         let options: IExampleOptions = {
             nhsNumber: (/*this.selectedPatient || */{ nhsNumber: undefined }).nhsNumber,
@@ -158,7 +171,8 @@ export class Publisher {
         };
 
         this.exampleSvc.generatePublish(options, this.selectedExampleMessageFormat.value).then(example => {
-            this.publishRequest.body = example;
+
+            this.publishRequest.body = this.exampleMessageBody = example;
         });
     }
 }

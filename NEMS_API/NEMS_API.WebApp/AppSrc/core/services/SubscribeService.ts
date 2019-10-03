@@ -18,7 +18,8 @@ export class SubscribeSvc {
      * Requests a new example based on selected Patient and Event Message Type.
      * @returns A FHIR Bundle of type Message.
      */
-    deleteSubscription(request: IRequest) {
+
+    sendCommand(request: IRequest) {
 
         let headers = this.fhirSvc.getFhirRequestHeaders(request.contentType);
 
@@ -29,11 +30,16 @@ export class SubscribeSvc {
 
         let isText = this.fhirSvc.isFhirXml(request.contentType);
 
-        let event = this.api.do<IHttpResponse<any>>({ url: `${this.baseUrl}/${request.endPoint}${this.query}`, body: request.body, method: request.method, headers: headers, asText: isText, returnResponse: true } as IHttpRequest);
+        if (!isText && typeof request.body === "string") {
+            request.body = JSON.parse(request.body);
+        }
+
+        let event = this.api.do<IHttpResponse<any>>({ url: `${request.endPoint}${this.query}`, body: request.body, method: request.method, headers: headers, asText: isText, returnResponse: true } as IHttpRequest);
 
         return event;
     }
 
-   
-
+    get subscribeEndpoint() {
+        return `${this.api.hostAddress}${this.baseUrl}`;
+    }
 }

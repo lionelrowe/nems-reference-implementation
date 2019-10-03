@@ -8,4 +8,5 @@
     interactionId: string;
     body?: string;
     contentType: string;
+    running: boolean;
 }

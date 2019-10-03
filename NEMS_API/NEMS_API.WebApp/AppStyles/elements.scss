@@ -1,0 +1,30 @@
+﻿.sub-minimal {
+    .sub-criteria, .sub-status, .sub-endpoint, .sub-action>button>span {
+        display: none;
+    }
+}
+
+.nav-tabs {
+    &.well-tabs{
+        >li{
+            margin-bottom: -3px;
+        }
+    }
+}
+
+.bg-default {
+    background-color: #fff;
+}
+
+pre {
+    &.examples {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+}
+
+.well {
+    &.well-content-break {
+        word-break: break-all;
+    }
+}

@@ -1,5 +1,8 @@
-﻿export function configure(config) {
+﻿import { PLATFORM } from "aurelia-framework";
+
+export function configure(config) {
     config.globalResources([
-        '../keys'
+        PLATFORM.moduleName('./keys'),
+        PLATFORM.moduleName('./uppercase')
     ]);
 }

@@ -10,8 +10,8 @@ Bluebird.config({ warnings: { wForgottenReturn: false } });
 
 export async function configure(au: Aurelia) {
     au.use.standardConfiguration()
-        .developmentLogging();
-        //.plugin(PLATFORM.moduleName('./core/helpers/converters/index'));
+        .developmentLogging()
+        .plugin(PLATFORM.moduleName('core/helpers/converters'));
 
     await au.start().then(a => {
         a.setRoot(PLATFORM.moduleName('app'));

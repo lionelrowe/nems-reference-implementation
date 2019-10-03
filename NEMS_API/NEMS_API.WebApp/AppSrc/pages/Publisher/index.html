@@ -1,83 +1,67 @@
 ﻿<template>
-    <require from="core/helpers/converters/keys"></require>
 
     <section class="container">
         <h1 class="h1">${heading}</h1>
 
         <form>
             <!--<div class="form-group">
-                <label for="patient">Patient</label>
-                <select value.bind="selectedPatient" class="form-control" id="patient">
-                    <option model.bind="null">--select--</option>
-                    <option repeat.for="patient of patients" model.bind="patient">${patient.displayName} (${patient.nhsNumber})</option>
-                </select>
-            </div>-->
+        <label for="patient">Patient</label>
+        <select value.bind="selectedPatient" class="form-control" id="patient">
+            <option model.bind="null">--select--</option>
+            <option repeat.for="patient of patients" model.bind="patient">${patient.displayName} (${patient.nhsNumber})</option>
+        </select>
+    </div>-->
             <div class="form-group">
                 <label for="eventMessageType">Event message type</label>
-                <select value.bind="selectedEventMessageType" class="form-control" id="eventMessageType">
+                <spinner-msg message="Loading Event Types" logic.one-way="!eventMessageTypes || eventMessageTypes.length === 0"></spinner-msg>
+                <select value.bind="selectedEventMessageType" class="form-control" id="eventMessageType" show.bind="eventMessageTypes && eventMessageTypes.length > 0">
                     <!--disabled.bind="!selectedPatient">-->
                     <option model.bind="null">--select--</option>
                     <option repeat.for="eventMessageType of eventMessageTypes" model.bind="eventMessageType" selected>${eventMessageType.value}</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="publishMessagePreview">Message Preview</label>
-                <textarea class="form-control" id="publishMessagePreview" rows="10" value.bind="publishRequest.body" disabled></textarea>
-            </div>
-            <div class="form-group">
                 <label for="messageFormat">Message Format</label>
-                <select value.bind="selectedExampleMessageFormat" class="form-control" id="messageFormat" disabled.bind="!selectedEventMessageType">
+                <spinner-msg message="Loading Format Types" logic.one-way="!exampleMessageFormats || exampleMessageFormats.length === 0"></spinner-msg>
+                <select value.bind="selectedExampleMessageFormat" class="form-control" id="messageFormat" disabled.bind="!selectedEventMessageType" show.bind="exampleMessageFormats && exampleMessageFormats.length > 0">
                     <option repeat.for="exampleMessageFormat of exampleMessageFormats" model.bind="exampleMessageFormat">${exampleMessageFormat.value}</option>
                 </select>
             </div>
-            <div class="form-group">
-                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#headersCollapse" aria-expanded="false" aria-controls="headersCollapse">
-                    Show/Hide HTTP Headers
-                </button>
+
+            <div class="form-group" show.bind="selectedEventMessageType">
+                <label for="Endpoint">Request</label>
+                <div class="well well-content-break">
+                    <b>Endpoint</b>
+                    <pre>POST ${publishRequest.endPoint}</pre>
+
+                    <b>Headers</b>
+<pre>
+fromASID: ${publishRequest.fromAsid}
+toASID: ${publishRequest.toAsid}
+InteractionID: ${publishRequest.interactionId}
+Content-Type: ${publishRequest.contentType}
+Authorization: Bearer ${publishRequest.jwt}
+</pre>
+
+
+                    <b>Body</b>
+                    <pre class="examples">${exampleMessageBody}</pre>
+                </div>
             </div>
 
-            <div class="collapse" id="headersCollapse">
-                <div class="well">
-                    <div class="form-group">
-                        <label for="fromASID">fromASID</label>
-                        <input type="text" class="form-control" id="fromASID" value.bind="publishRequest.fromAsid" disabled />
-                    </div>
-                    <div class="form-group">
-                        <label for="toASID">toASID</label>
-                        <input type="text" class="form-control" id="toASID" value.bind="publishRequest.toAsid" disabled />
-                    </div>
-                    <div class="form-group">
-                        <label for="interactionId">InteractionID</label>
-                        <input type="text" class="form-control" id="interactionId" value.bind="publishRequest.interactionId" disabled />
-                    </div>
-                    <div class="form-group">
-                        <label for="jwt">JWT</label>
-                        <input type="text" class="form-control" id="jwt" value.bind="publishRequest.jwt" disabled />
-                    </div>
-                    <div class="form-group">
-                        <label for="contentType">Content-Type</label>
-                        <input type="text" class="form-control" id="contentType" value.bind="selectedExampleMessageFormat.value" disabled />
-                    </div>
-                </div>
-                <div class="well">
-                    <div class="form-group">
-                        <h3>Response</h3>
-                    </div>
-                    <div class="form-group">
-                        <label for="responseStatus">Status</label>
-                        <input type="text" class="form-control" id="toASID" value.bind="response.statusCode + ' ' + response.statusText" disabled />
-                    </div>
-                    <div class="form-group">
-                        <label for="ResponseBody">Body</label>
-                        <textarea class="form-control" id="ResponseBody" rows="10" value.bind="response.body" disabled></textarea>
-                    </div>
-                    <div class="form-group">
-                        <h4>Headers</h4>
-                    </div>
-                    <div class="form-group" repeat.for="key of response.headers | keys">
-                        <label for="header${key}">${key}</label>
-                        <input type="text" class="form-control" id="header${key}" value.bind="response.headers[key]" disabled />
-                    </div>
+            <spinner-msg message="Sending Request" logic.one-way="!response && publishRequest.running"></spinner-msg>
+            <div class="form-group" show.bind="!publishRequest.running && response">
+                <label for="Endpoint">Response</label>
+                <div class="well well-content-break">
+                    <b>Status</b>
+                    <pre>${response.statusCode} ${response.statusText}</pre>
+
+                    <b>Headers</b>
+<pre><span repeat.for="key of response.headers | keys">${key}: ${response.headers[key]}
+</span></pre>
+
+                    <b>Body<span show.bind="response.body.length === 0"> (<span class="text-warning">no body returned</span>)</span></b>
+                    <pre class="examples" show.bind="response.body.length > 0">${response.body}</pre>
                 </div>
             </div>
 

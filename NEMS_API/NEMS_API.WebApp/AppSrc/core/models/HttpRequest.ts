@@ -10,6 +10,7 @@ export class HttpRequest implements IRequest {
     interactionId: string = "";
     body?: string;
     contentType: string = "";
+    running: boolean = false;
 
     constructor(request?: IRequest) {
 

@@ -48,7 +48,7 @@ export class WebAPI {
             config
                 .useStandardConfiguration()
                 //Running on same host:port as API so base url can be left as is
-                .withBaseUrl('/nems-ri/')
+                .withBaseUrl(this.hostAddress)
                 .withDefaults({
                     credentials: 'same-origin',
                     headers: this.getHeaders(request.headers),
@@ -79,13 +79,17 @@ export class WebAPI {
                 .fetch(request.url, reqBody)
                 .then(response => {
 
-                    let resovable = (request.asText === true ? response.text() : response.json()).then(res => {
+                    let resovable = response.text().then(text => {
 
-                        if (request.returnResponse === true) {
-                            return that.buildHttpResponse<T>(response, res);
-                        }
+                        return request.asText === true || text.length === 0 ? text : JSON.parse(text);
 
-                        return res;
+                        }).then(res => {
+
+                            if (request.returnResponse === true) {
+                                return that.buildHttpResponse<T>(response, res);
+                            }
+
+                            return res;
                     });
 
                     resolve(resovable);
@@ -111,6 +115,10 @@ export class WebAPI {
                     }
                 });
         });
+    }
+
+    get hostAddress() {
+        return `${location.protocol}//${location.host}/nems-ri/`;
     }
 
     private buildHttpResponse<T>(response: Response, body: any): IHttpResponse<T> {
