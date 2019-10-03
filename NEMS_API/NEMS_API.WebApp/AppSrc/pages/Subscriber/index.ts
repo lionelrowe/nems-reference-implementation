@@ -103,7 +103,7 @@ export class Subscriber {
 
             this.subscribers = subscribers;   
 
-            this.setSelectedSubscriber(subscribers[0]);
+            //this.setSelectedSubscriber(subscribers[0]);
 
             this.loadingSubscribers = false;
         });

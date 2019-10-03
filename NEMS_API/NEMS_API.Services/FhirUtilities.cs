@@ -26,7 +26,7 @@ namespace NEMS_API.Services
 
             var codes = codeSystem?.Concept?.Select(x => new KeyValuePair<string, string>(x.Code, x.Display))?.ToList() ?? new List<KeyValuePair<string, string>>();
 
-            return codes.Where(x => _nemsApiSettings.SupportedEventTypes.Count == 0 || _nemsApiSettings.SupportedEventTypes.Contains(x.Key));
+            return codes.Where(x => _nemsApiSettings.SupportedEventTypes.Count == 0 || _nemsApiSettings.SupportedEventTypes.Any(e => e.Name == x.Key));
         }
 
         public KeyValuePair<string, string> GetNemsEventCode(string code)

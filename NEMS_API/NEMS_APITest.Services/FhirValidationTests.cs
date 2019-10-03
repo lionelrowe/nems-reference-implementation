@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Moq;
 using NEMS_API.Core.Interfaces.Helpers;
+using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Models.Core;
 using NEMS_API.Models.FhirResources;
 using NEMS_API.Services;
@@ -16,6 +17,7 @@ namespace NEMS_APITest.Services
         IValidationHelper _validationHelper;
         IOptions<NemsApiSettings> _nemsApiOptions;
         NemsSubscription _validSubscription;
+        ISdsService _sdsService;
 
         public FhirValidationTests()
         {
@@ -146,6 +148,11 @@ namespace NEMS_APITest.Services
 
             _validSubscription = sub;
 
+            var sdsMock = new Mock<ISdsService>();
+            sdsMock.Setup(op => op.GetFor(It.IsAny<string>())).Returns((SdsViewModel)null);
+
+            _sdsService = sdsMock.Object;
+
         }
 
         public void Dispose()
@@ -153,6 +160,7 @@ namespace NEMS_APITest.Services
             _validationHelper = null;
             _nemsApiOptions = null;
             _validSubscription = null;
+            _sdsService = null;
         }
 
         [Theory]
@@ -163,7 +171,7 @@ namespace NEMS_APITest.Services
         [InlineData("/Bundle?type=message&serviceType=EPCHR&Patient.identifier=http://fhir.nhs.net/Id/nhs-number|9434765919&MessageHeader.event=pds-change-of-address-1&MessageHeader.event=vaccinations-1&Patient.age=200")]
         public void ValidateSubscriptionCriteria_Valid(string criteria)
         {
-             var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+             var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
 
             var result = ts.ValidateSubscriptionCriteria(criteria);
 
@@ -188,7 +196,7 @@ namespace NEMS_APITest.Services
         [InlineData(12, "/Bundle?type=message&serviceType=GP&Patient.identifier=http://fhir.nhs.net/Id/nhs-number|9434765919&MessageHeader.event=pds-change-of-address-1&Patient.age=lt14&Patient.age=gt5&Patient.age=7")]
         public void ValidateSubscriptionCriteria_Invalid(int id, string criteria)
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
 
             var result = ts.ValidateSubscriptionCriteria(criteria);
 
@@ -202,7 +210,7 @@ namespace NEMS_APITest.Services
         [Fact]
         public void ValidSubscription_Valid()
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
 
             var result = ts.ValidSubscription(_validSubscription);
 
@@ -216,7 +224,7 @@ namespace NEMS_APITest.Services
         [Fact]
         public void ValidSubscription_ValidExtraContact()
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
 
             var sub = _validSubscription;
             sub.Contact.Add(new ContactPoint(ContactPoint.ContactPointSystem.Other,
@@ -235,7 +243,7 @@ namespace NEMS_APITest.Services
         [Fact]
         public void ValidSubscription_InvalidContactSystem()
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Contact = new List<ContactPoint>();
             sub.Contact.Add(new ContactPoint(ContactPoint.ContactPointSystem.Email,
@@ -251,7 +259,7 @@ namespace NEMS_APITest.Services
         [Fact]
         public void ValidSubscription_InvalidContactUse()
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Contact = new List<ContactPoint>();
             sub.Contact.Add(new ContactPoint(ContactPoint.ContactPointSystem.Url,
@@ -267,7 +275,7 @@ namespace NEMS_APITest.Services
         [Fact]
         public void ValidSubscription_InvalidContactValue()
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Contact = new List<ContactPoint>();
             sub.Contact.Add(new ContactPoint(ContactPoint.ContactPointSystem.Url,
@@ -283,7 +291,7 @@ namespace NEMS_APITest.Services
         [Fact]
         public void ValidSubscription_InvalidContactValueCode()
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Contact = new List<ContactPoint>();
             sub.Contact.Add(new ContactPoint(ContactPoint.ContactPointSystem.Email,
@@ -299,7 +307,7 @@ namespace NEMS_APITest.Services
         [Fact]
         public void ValidSubscription_InvalidStatus()
         {
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Status = Subscription.SubscriptionStatus.Off;
 
@@ -313,7 +321,7 @@ namespace NEMS_APITest.Services
         public void ValidSubscription_InvalidCriteria()
         {
             //Not testing the criteria validation, but the catching of the error within it
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Criteria = "anything.com";
 
@@ -327,7 +335,7 @@ namespace NEMS_APITest.Services
         public void ValidSubscription_InvalidChannelType()
         {
             //Not testing the criteria validation, but the catching of the error within it
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Channel.Type = Subscription.SubscriptionChannelType.RestHook;
 
@@ -341,7 +349,7 @@ namespace NEMS_APITest.Services
         public void ValidSubscription_InvalidChannelEndpoint()
         {
             //Not testing the criteria validation, but the catching of the error within it
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Channel.Endpoint = null;
 
@@ -355,7 +363,7 @@ namespace NEMS_APITest.Services
         public void ValidSubscription_InvalidHasId()
         {
             //Not testing the criteria validation, but the catching of the error within it
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Id = "SHoud-not-be-here";
 
@@ -369,7 +377,7 @@ namespace NEMS_APITest.Services
         public void ValidSubscription_InvalidHasVersion()
         {
             //Not testing the criteria validation, but the catching of the error within it
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Meta.VersionId = "Shoud-not-be-here";
 
@@ -383,7 +391,7 @@ namespace NEMS_APITest.Services
         public void ValidSubscription_InvalidHasLastUpdated()
         {
             //Not testing the criteria validation, but the catching of the error within it
-            var ts = new FhirValidation(_nemsApiOptions, _validationHelper);
+            var ts = new FhirValidation(_nemsApiOptions, _validationHelper, _sdsService);
             var sub = _validSubscription;
             sub.Meta.LastUpdated = DateTimeOffset.Now;
 

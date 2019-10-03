@@ -9,14 +9,14 @@ namespace NEMS_API.Models.Core
             SupportedContentTypes = new List<KvList>();
             SubscriptionCriteriaRules = new List<SubscriptionCriteriaRule>();
             BundleValidationSchemas = new Dictionary<string, List<KvList>>();
-            SupportedEventTypes = new List<string>();
+            SupportedEventTypes = new List<EventTypeConfig>();
         }
 
         public ResourceUrls ResourceUrl { get; set; }
 
         public List<KvList> SupportedContentTypes { get; set; }
 
-        public List<string> SupportedEventTypes { get; set; }
+        public List<EventTypeConfig> SupportedEventTypes { get; set; }
 
         public List<SubscriptionCriteriaRule> SubscriptionCriteriaRules { get; set; }
 

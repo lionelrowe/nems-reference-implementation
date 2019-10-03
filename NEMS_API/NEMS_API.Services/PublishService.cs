@@ -90,7 +90,7 @@ namespace NEMS_API.Services
                 throw new HttpFhirException("Publisher asid does not have access to perform this Interaction", OperationOutcomeFactory.CreateAccessDenied(), HttpStatusCode.Forbidden);
             }
 
-            if (_nemsApiSettings.SupportedEventTypes.Count > 0 && !_nemsApiSettings.SupportedEventTypes.Contains(eventType))
+            if (_nemsApiSettings.SupportedEventTypes.Count > 0 && !_nemsApiSettings.SupportedEventTypes.Any(e => e.Name == eventType))
             {
                 var schemaMessage = $"Supplied bundle passed basic FHIR validation but event of type {eventType} is not currently supported.";
 
