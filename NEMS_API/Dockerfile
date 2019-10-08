@@ -9,7 +9,13 @@ COPY . ./
 # Restore Solution
 RUN dotnet restore NEMS_API.WebApp/NEMS_API.WebApp.csproj
 
+#Start Front-end build
+WORKDIR /app/NEMS_API.WebApp
+RUN npm install
+RUN npm run build:prod
+
 #Start Back-end build
+WORKDIR /app
 RUN dotnet publish NEMS_API.WebApp/NEMS_API.WebApp.csproj -c Release -o out
 
 # Build runtime image
