@@ -16,7 +16,7 @@ import { IHttpResponse } from "../../core/interfaces/IHttpResponse";
 @inject(PatientSvc, ExampleSvc, ListSvc, SystemSvc, JwtSvc, PublishSvc)
 export class Publisher {
 
-    heading: string = 'Publisher';
+    heading: string = 'Publisher App';
 
     //patients: IPatient[];
 

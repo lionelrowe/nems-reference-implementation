@@ -8,7 +8,11 @@
 
         public static string SdsEntries = "SdsEntries";
 
-        public static string SchemaProfile(string type) => "SchemaProfiles:" + type;
+        public static string Mailbox(string mailboxId) => $"Mailbox:{mailboxId}";
+
+        public static string NemsEventEntry(string id) => $"NemsEventEntry:{id}";
+
+        public static string SchemaProfile(string type) => $"SchemaProfiles:{type}";
 
     }
 }

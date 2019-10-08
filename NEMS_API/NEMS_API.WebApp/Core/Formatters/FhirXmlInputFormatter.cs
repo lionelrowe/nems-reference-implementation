@@ -38,6 +38,11 @@ namespace NEMS_API.WebApp.Core.Formatters
         {
             var request = context.HttpContext.Request;
 
+            if(request.ContentType.ToUpperInvariant().Contains("TEXT/PLAIN"))
+            {
+                return InputFormatterResult.SuccessAsync("");
+            }
+
             using (var streamReader = context.ReaderFactory(request.Body, encoding))
             using (XmlTextReader xmlReader = new XmlTextReader(streamReader))
             {

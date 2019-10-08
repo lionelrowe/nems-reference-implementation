@@ -8,4 +8,6 @@
     asid: string;
     thumbprint?: string;
     cacheKey?: string;
+    meshMailboxId: string;
+    workflowIds: string[];
 }

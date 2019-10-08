@@ -7,6 +7,8 @@ namespace NEMS_API.Core.Interfaces.Data
     {
         T Read<T>(T data) where T : class, IDataItem, new();
 
+        T Read<T>(string cacheKey) where T : class, new();
+
         //TODO: search
         List<T> Search<T>(T data) where T : class, IDataItem, new();
 

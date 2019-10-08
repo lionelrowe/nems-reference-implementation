@@ -3,10 +3,14 @@ using Microsoft.Extensions.Options;
 using NEMS_API.Core.Exceptions;
 using NEMS_API.Core.Factories;
 using NEMS_API.Core.Helpers;
+using NEMS_API.Core.Interfaces.Data;
 using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Core.Resources;
 using NEMS_API.Models.Core;
+using NEMS_API.Models.FhirResources;
+using NEMS_API.Models.MessageExchange;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -21,16 +25,23 @@ namespace NEMS_API.Services
         private readonly IStaticCacheHelper _staticCacheHelper;
         private readonly IFileHelper _fileHelper;
         private readonly ISdsService _sdsService;
+        private readonly IMessageExchangeHelper _messageExchangeHelper;
+        private readonly IDataReader _dataReader;
+        private readonly IDataWriter _dataWriter;
         private readonly NemsApiSettings _nemsApiSettings;
+        private DateTimeOffset _eventStoreExpiration = new DateTimeOffset(DateTime.UtcNow.AddHours(3));
 
         public PublishService(IOptions<NemsApiSettings> nemsApiSettings, IFhirValidation fhirValidation, ISchemaValidationHelper schemaValidationHelper, 
-            IStaticCacheHelper staticCacheHelper, IFileHelper fileHelper, ISdsService sdsService)
+            IStaticCacheHelper staticCacheHelper, IFileHelper fileHelper, ISdsService sdsService, IMessageExchangeHelper messageExchangeHelper, IDataReader dataReader, IDataWriter dataWriter)
         {
             _fhirValidation = fhirValidation;
             _schemaValidationHelper = schemaValidationHelper;
             _staticCacheHelper = staticCacheHelper;
             _fileHelper = fileHelper;
             _sdsService = sdsService;
+            _messageExchangeHelper = messageExchangeHelper;
+            _dataReader = dataReader;
+            _dataWriter = dataWriter;
             _nemsApiSettings = nemsApiSettings.Value;
         }
 
@@ -40,6 +51,7 @@ namespace NEMS_API.Services
 
             //Bundle
             var bundle = request.Resource as Bundle;
+            var basicValidationOnly = bundle.Meta?.Profile?.Contains(_nemsApiSettings.ValidationOptions.ValidateMessageFromProfileUrl) ?? _nemsApiSettings.ValidationOptions.ValidateMessageHeaderOnly;
             var meta = bundle.Meta;
             bundle.Meta = meta ?? new Meta();
             bundle.Meta.Profile = new List<string> { _nemsApiSettings.ResourceUrl.BundleProfileUrl }; //reset profile
@@ -67,7 +79,7 @@ namespace NEMS_API.Services
                 return validation;
             }
 
-            if(_nemsApiSettings.MessageHeaderValidationOnly)
+            if(basicValidationOnly)
             {
                 return OperationOutcomeFactory.CreateOk();
             }
@@ -75,6 +87,7 @@ namespace NEMS_API.Services
             //## NEMS validation ##
           
             var eventType = header.Event.Code;
+            var activeEventType = _nemsApiSettings.SupportedEventTypes.FirstOrDefault(e => e.Name == eventType);
 
             var client = _sdsService.GetFor(request.RequestingAsid);
 
@@ -90,11 +103,20 @@ namespace NEMS_API.Services
                 throw new HttpFhirException("Publisher asid does not have access to perform this Interaction", OperationOutcomeFactory.CreateAccessDenied(), HttpStatusCode.Forbidden);
             }
 
-            if (_nemsApiSettings.SupportedEventTypes.Count > 0 && !_nemsApiSettings.SupportedEventTypes.Any(e => e.Name == eventType))
+            if (_nemsApiSettings.ValidationOptions.AcceptSupportedEventsOnly && _nemsApiSettings.SupportedEventTypes.Count > 0 && activeEventType == null)
             {
                 var schemaMessage = $"Supplied bundle passed basic FHIR validation but event of type {eventType} is not currently supported.";
 
                 return OperationOutcomeFactory.CreateInvalidResource("MessageHeader.event.code", schemaMessage);
+            }
+
+            if(!_nemsApiSettings.ValidationOptions.AcceptSupportedEventsOnly && activeEventType == null)
+            {
+                activeEventType = new EventTypeConfig
+                {
+                    Name = "Generic-Event-Type-1",
+                    WorkflowID = "GENERICEVENTTYPE_1"
+                };
             }
 
             var schemaMessages = new List<string>();
@@ -143,11 +165,56 @@ namespace NEMS_API.Services
             }
 
             //We are valid
+            bundle.Id = Guid.NewGuid().ToString();
 
-            // ## SEND Message async and immediately return ##
-            // no actual MESH stuff to handle so nothing more to do here
+            _dataWriter.Create(bundle, CacheKeys.NemsEventEntry(bundle.Id), _eventStoreExpiration);
+
+            var pdsExtension = header.GetExtension(_nemsApiSettings.ResourceUrl.ExtensionRoutingDemographicsUrl);
+            var patientIdentifier = pdsExtension.GetExtensionValue<Identifier>("nhsNumber");
+            var patientDob = pdsExtension.GetExtensionValue<FhirDateTime>("birthDateTime"); //.Extension.FirstOrDefault(e => e.Url == "birthDateTime").Value as FhirDateTime;
+
+            SendToMailboxes($"{patientIdentifier.System}|{patientIdentifier.Value}", patientDob, activeEventType, bundle.Id);
+
+            _messageExchangeHelper.SyncRequest(activeEventType.WorkflowID);
 
             return OperationOutcomeFactory.CreateOk();
+        }
+
+        private void SendToMailboxes(string patientIdentifier, FhirDateTime birthDate, EventTypeConfig activeEventType, string id)
+        {
+            var workflowSubscribers = _sdsService.GetAll().Where(x => x.WorkflowIds.Contains(activeEventType.WorkflowID));
+
+            var ageDt = DateTime.Parse(birthDate.Value);
+
+            var now = DateTime.UtcNow;
+
+            var age = now.Year - ageDt.Year;
+
+            // leap year check
+            if (ageDt > now.AddYears(-age))
+            {
+                age--;
+            }
+
+            foreach (var sub in workflowSubscribers)
+            {
+                var subscriptions = _dataReader.Search(new NemsSubscription());
+
+                var clientSubscriptions = subscriptions.Where(x => x.RequesterAsid == sub.Asid && ( _nemsApiSettings.ValidationOptions.SkipSubscriptionMatching || (x.CriteriaModel.PatientIdentifier == patientIdentifier.ToUpperInvariant() && x.CriteriaModel.MessageHeaderEvents.Contains(activeEventType.Name.ToUpperInvariant()) && x.CriteriaModel.ValidAge(age))));
+
+
+                if (clientSubscriptions.Any())
+                {
+                    var dataItem = new InboxRecordIdentifier
+                    {
+                        Id = id,
+                        Data = sub.MeshMailboxId
+                    };
+
+                    _dataWriter.Create(dataItem, _eventStoreExpiration);
+                }
+
+            }
         }
     }
 }

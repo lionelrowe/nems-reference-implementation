@@ -44,7 +44,7 @@ namespace NEMS_API.Controllers.AppUtilities
 
             if (string.IsNullOrEmpty(options?.NhsNumber))
             {
-                options.NhsNumber = "9434765919";
+                options.NhsNumber = "9912003888";
             }
 
             var exampleLocation = Path.Combine("Data", "examples", $"subscription-patient-{options.NhsNumber}.xml");

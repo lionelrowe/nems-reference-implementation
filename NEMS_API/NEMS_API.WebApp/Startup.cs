@@ -23,6 +23,7 @@ using NEMS_API.WebApp.Core.Filters;
 using NEMS_API.WebApp.Core.Formatters;
 using NEMS_API.WebApp.Core.Middlewares;
 using Swashbuckle.AspNetCore.Swagger;
+using NEMS_API.Core.Hubs;
 
 namespace NEMS_API
 {
@@ -56,6 +57,9 @@ namespace NEMS_API
                 config.InputFormatters.Insert(1, new FhirXmlInputFormatter());
                 config.OutputFormatters.Insert(1, new FhirXmlOutputFormatter());
 
+                config.InputFormatters.Insert(0, new WebApp.Core.Formatters.StringInputFormatter());
+                config.OutputFormatters.Insert(0, new WebApp.Core.Formatters.StringOutputFormatter());
+
                 config.InputFormatters.Insert(0, new WebApp.Core.Formatters.JsonInputFormatter());
                 config.OutputFormatters.Insert(0, new WebApp.Core.Formatters.JsonOutputFormatter());
             });
@@ -79,6 +83,8 @@ namespace NEMS_API
                 c.IncludeXmlComments(xmlPath);
                 c.OperationFilter<ParameterContentTypeOperationFilter>();
             });
+
+            services.AddSignalR();
             services.AddOptions();
             services.Configure<NemsApiSettings>(Configuration.GetSection("NEMSAPI"));
 
@@ -96,6 +102,8 @@ namespace NEMS_API
             services.AddTransient<IDataWriter, CacheDataWriter>();
             services.AddTransient<IDataReader, CacheDataReader>();
             services.AddTransient<ISchemaValidationHelper, SchemaValidationHelper>();
+            services.AddTransient<IMessageExchangeHelper, MessageExchangeHelper>();
+            services.AddTransient<IMessageExchangeService, MessageExchangeService>();
         }
 
         private List<string> SetList(string configVal)
@@ -121,7 +129,7 @@ namespace NEMS_API
             //handle compression as per spec
             app.UseFhirInputMiddleware();
 
-            app.UseWhen(context => context.Request.Path.StartsWithSegments(new PathString("/nems-ri/STU3")) && !nemsApiSettings.Value.SkipSpineGateWay,
+            app.UseWhen(context => context.Request.Path.StartsWithSegments(new PathString("/nems-ri/STU3")) && !nemsApiSettings.Value.ValidationOptions.SkipSpineGateWay,
                 a => a.UseSpineGateMiddleware()
             );
 
@@ -140,6 +148,11 @@ namespace NEMS_API
                 c.EnableDeepLinking();
                 //c.IndexStream = () => File.OpenText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "static", "swagger", "ui", "index.html")).BaseStream;
                 c.DocumentTitle = "NEMS API Reference Implementation - Explore with Swagger";
+            });
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<PublisherHub>("/nems-ri/messageexchange/syncstatus");
             });
 
             app.UseMvc();

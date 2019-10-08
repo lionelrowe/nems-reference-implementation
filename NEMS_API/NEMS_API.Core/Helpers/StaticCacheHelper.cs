@@ -44,6 +44,13 @@ namespace NEMS_API.Core.Helpers
             return entry;
         }
 
+        public T AddEntry<T>(T entry, string cacheKey, DateTimeOffset lifespan)
+        {
+            Set(cacheKey, entry, lifespan);
+
+            return entry;
+        }
+
         public T AddListItem<T>(T entry) where T: IDataItem, new()
         {
             var dataOut = new List<T>();
@@ -104,18 +111,19 @@ namespace NEMS_API.Core.Helpers
         {
             var now = DateTime.UtcNow;
 
-            var hour = 20 - now.Hour;
+            //var hour = 20 - now.Hour;
 
-            if (now.Hour >= 20)
-            {
-                hour = 12 - (now.Hour - 20);
-            }
-            else if (now.Hour < 8)
-            {
-                hour = 8 - now.Hour;
-            }
+            //if (now.Hour >= 20)
+            //{
+            //    hour = 12 - (now.Hour - 20);
+            //}
+            //else if (now.Hour < 8)
+            //{
+            //    hour = 8 - now.Hour;
+            //}
 
-            var future = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, 0, DateTimeKind.Utc).AddHours(hour);
+            //var future = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, 0, DateTimeKind.Utc).AddHours(hour);
+            var future = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59, 999, DateTimeKind.Utc);
 
             return new DateTimeOffset(future);
         }

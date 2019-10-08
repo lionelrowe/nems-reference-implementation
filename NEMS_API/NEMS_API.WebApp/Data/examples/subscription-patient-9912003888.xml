@@ -11,7 +11,7 @@
     <use value="work"/>
   </contact>
   <reason value="Health visiting service responsible for Leeds"/>
-  <criteria value="/Bundle?type=message&amp;serviceType=UHV&amp;Patient.identifier=https://fhir.nhs.uk/Id/nhs-number|9434765919&amp;MessageHeader.event=pds-change-of-address-1&amp;Patient.age=gt5&amp;Patient.age=lt19" />
+  <criteria value="/Bundle?type=message&amp;serviceType=UHV&amp;Patient.identifier=https://fhir.nhs.uk/Id/nhs-number|9912003888&amp;MessageHeader.event=pds-change-of-gp-1&amp;Patient.age=gt1&amp;Patient.age=lt19" />
   <channel>
     <type value="message"/>
     <endpoint value="SUB01_200000000115"/>

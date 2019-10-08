@@ -13,7 +13,7 @@
         </div>
 
         <div class="collapse navbar-collapse" id="nrls-navbar-collapse">
-            <p class="navbar-text nrls-nav-text">${router.title}</p>
+            <p class="navbar-text nrls-nav-text"><b>${router.title}</b></p>
             <ul class="nav navbar-nav navbar-right nrls-navbar-nav">
                 <li repeat.for="row of router.navigation" class="${row.isActive ? 'active' : ''}">
                     <a data-toggle="collapse" data-target="#nrls-navbar-collapse.in" href.bind="row.href">${row.title}</a>

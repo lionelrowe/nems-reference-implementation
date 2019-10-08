@@ -49,7 +49,6 @@ Authorization: Bearer ${publishRequest.jwt}
                 </div>
             </div>
 
-            <spinner-msg message="Sending Request" logic.one-way="!response && publishRequest.running"></spinner-msg>
             <div class="form-group" show.bind="!publishRequest.running && response">
                 <label for="Endpoint">Response</label>
                 <div class="well well-content-break">
@@ -64,8 +63,14 @@ Authorization: Bearer ${publishRequest.jwt}
                     <pre class="examples" show.bind="response.body.length > 0">${response.body}</pre>
                 </div>
             </div>
-
-            <button type="submit" click.delegate="sendEvent()" class="btn btn-default" disabled.bind="!selectedEventMessageType">Send</button>
+            <div class="row">
+                <div class="col-xs-2">
+                    <button type="submit" click.delegate="sendEvent()" class="btn btn-success btn-block" disabled.bind="!selectedEventMessageType">Send</button>
+                </div>
+                <div class="col-xs-2">       
+                    <spinner-msg message="Sending Request" logic.one-way="!response && publishRequest.running"></spinner-msg>
+                </div>
+            </div>
         </form>
     </section>
 </template>

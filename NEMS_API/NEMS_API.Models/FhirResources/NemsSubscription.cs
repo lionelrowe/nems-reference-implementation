@@ -28,6 +28,8 @@ namespace NEMS_API.Models.FhirResources
             Meta = subscription.Meta;          
         }
 
+        public Criteria CriteriaModel => new Criteria(CriteriaDecoded);
+
         public string CriteriaDecoded
         {
             get

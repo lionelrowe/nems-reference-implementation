@@ -24,7 +24,10 @@ namespace NEMS_APITest.Services
 
             var nemsApiSettings = new NemsApiSettings
             {
-                SkipSubscriptionCriteria = false,
+                ValidationOptions = new ValidationOptions
+                {
+                    SkipSubscriptionCriteria = false
+                },
                 SubscriptionCriteriaRules = new List<SubscriptionCriteriaRule>
                 {
                     new SubscriptionCriteriaRule

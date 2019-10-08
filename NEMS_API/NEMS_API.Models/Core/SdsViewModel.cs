@@ -6,6 +6,11 @@ namespace NEMS_API.Models.Core
 {
     public class SdsViewModel : IDataItem
     {
+        public SdsViewModel()
+        {
+            WorkflowIds = new List<string>();
+        }
+
         public string Id { get; set; }
 
         public Guid PartyKey { get; set; }
@@ -23,6 +28,8 @@ namespace NEMS_API.Models.Core
         public string Thumbprint { get; set; }
 
         public string MeshMailboxId { get; set; }
+
+        public IEnumerable<string> WorkflowIds { get; set; }
 
         //public bool Active { get; set; }
 

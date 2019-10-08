@@ -23,6 +23,13 @@ namespace NEMS_API.Data
             return entries?.FirstOrDefault(x => x.Id == data.Id);
         }
 
+        public T Read<T>(string cacheKey) where T : class, new()
+        {
+            var entry = _staticCacheHelper.GetEntry<T>(cacheKey);
+
+            return entry;
+        }
+
         public List<T> Search<T>(T data) where T : class, IDataItem, new()
         {
             var entries = _staticCacheHelper.GetEntry<List<T>>(data.CacheKey);

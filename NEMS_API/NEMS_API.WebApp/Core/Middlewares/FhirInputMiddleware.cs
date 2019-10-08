@@ -90,7 +90,7 @@ namespace NEMS_API.WebApp.Core.Middlewares
         {
             var contentLength = context?.Request?.ContentLength;
             var type = context?.Request?.Method;
-            if (new string[] { HttpMethods.Post, HttpMethods.Put }.Contains(type) && (!contentLength.HasValue || contentLength.Value == 0))
+            if (new string[] { HttpMethods.Post, HttpMethods.Put }.Contains(type) && (!context.Request.Path.Value.Contains("messageexchange") && (!contentLength.HasValue || contentLength.Value == 0)))
             {
                 throw new HttpFhirException("Invalid Request", OperationOutcomeFactory.CreateInvalidRequest(), HttpStatusCode.BadRequest);
             }

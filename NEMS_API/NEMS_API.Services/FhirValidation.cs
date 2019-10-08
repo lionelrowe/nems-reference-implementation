@@ -131,7 +131,7 @@ namespace NEMS_API.Services
         public OperationOutcome ValidateSubscriptionCriteria(string criteria)
         {
 
-            if (_nemsApiSettings.SkipSubscriptionCriteria)
+            if (_nemsApiSettings.ValidationOptions.SkipSubscriptionCriteria)
             {
                 return OperationOutcomeFactory.CreateOk();
             }

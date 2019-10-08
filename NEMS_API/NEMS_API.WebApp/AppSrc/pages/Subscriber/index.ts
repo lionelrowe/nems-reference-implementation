@@ -12,11 +12,13 @@ import { JwtSvc } from "../../core/services/JwtService";
 import { IHttpResponse } from "../../core/interfaces/IHttpResponse";
 import { SubscriptionUtilsSvc } from "../../core/services/SubscriptionUtilsService";
 import { INemsSubscription } from "../../core/interfaces/fhir/INemsSubscription";
+import { MessageExchangeSvc } from "../../core/services/MessageExchangeService";
+import { IInboxRecord } from "../../core/interfaces/IInboxRecord";
 
-@inject(ExampleSvc, ListSvc, SystemSvc, JwtSvc, SubscribeSvc, SubscriptionUtilsSvc)
+@inject(ExampleSvc, ListSvc, SystemSvc, JwtSvc, SubscribeSvc, SubscriptionUtilsSvc, MessageExchangeSvc)
 export class Subscriber {
 
-    heading: string = 'Subscriber';
+    heading: string = 'Subscriber App';
 
     @observable
     selectedSubscriber: ISdsEntry;
@@ -39,17 +41,32 @@ export class Subscriber {
     @observable
     selectedExampleMessageFormat: IKeyValuePair;
 
+    mailboxEntries: any[];
+    checkingMailbox: boolean = false;
+    promptMailbox: boolean = false;
+    mailboxInitCheck: any;
+
     subscriberLayout: any = {
         subscriptionsListClass: "col-xs-12",
         showSubscription: false,
         activeSubscriptionClass: {},
         activeSubscription: {},
+        subscriptionViewActive: false,
         creating: false,
+        loading: true
+    };
+
+    eventLayout: any = {
+        eventListClass: "col-xs-12",
+        showEvent: false,
+        activeEventClass: {},
+        activeEvent: {},
         loading: true
     };
     
 
-    constructor(private exampleSvc: ExampleSvc, private listSvc: ListSvc, private systemSvc: SystemSvc, private jwtSvc: JwtSvc, private subscribeSvc: SubscribeSvc, private subscriptionUtilsSvc: SubscriptionUtilsSvc) {
+    constructor(private exampleSvc: ExampleSvc, private listSvc: ListSvc, private systemSvc: SystemSvc, private jwtSvc: JwtSvc,
+        private subscribeSvc: SubscribeSvc, private subscriptionUtilsSvc: SubscriptionUtilsSvc, private messageExchangeSvc: MessageExchangeSvc) {
 
         this.getSpineDetails();
 
@@ -57,6 +74,108 @@ export class Subscriber {
 
         this.getValidContentTypes();
 
+        this.mailboxEntries = [];
+    }
+
+    attached() {
+        $('a[data-toggle="tab"]').on('shown.bs.tab', (e) => {
+
+            let target: HTMLAnchorElement = e.target as HTMLAnchorElement;
+            
+            this.subscriberLayout.subscriptionViewActive = (target && target.href.indexOf("#mySubscriptions") > -1);
+
+            if (!this.subscriberLayout.subscriptionViewActive) {
+                this.checkMailbox();
+            }
+
+        });
+
+    }
+
+    detached() {
+        $('a[data-toggle="tab"]').off('shown.bs.tab');
+
+        this.subscriberLayout.subscriptionViewActive = false;
+    }
+
+    private initMailboxCheck() {
+        let initRes = this.messageExchangeSvc.init(this.selectedSubscriber.workflowIds, () => {
+
+            this.promptMailbox = true;
+            this.checkMailbox();
+
+            clearTimeout(this.mailboxInitCheck);
+        });
+
+        if (typeof initRes === "undefined") {
+            this.mailboxInitCheck = setTimeout(() => { this.initMailboxCheck(); }, 500);
+        }
+    }
+
+    private checkMailbox() {
+
+        if (this.checkingMailbox || this.subscriberLayout.subscriptionViewActive) {
+            console.log("Skipped mailbox check");
+            return;
+        }
+
+        this.checkingMailbox = true;
+
+        this.messageExchangeSvc.checkMessage(this.selectedSubscriber.meshMailboxId).then(record => {
+
+               this.nextFromMailbox(record);
+        });
+    }
+
+    private nextFromMailbox(record: IInboxRecord) {
+
+        if (!record) {
+            console.log("No messages to pull");
+            this.checkingMailbox = false;
+            this.promptMailbox = false;
+            return;
+        }
+
+        console.log(`Request message ${record.messageID}`);
+
+        this.messageExchangeSvc.getMessage(this.selectedSubscriber.meshMailboxId, record.messageID).then(message => {
+
+            let messageBody = JSON.stringify(message, null, 2);
+
+            let entry = {
+                id: record.messageID,
+                preview: messageBody.substr(0, 100),
+                body: messageBody
+            };
+
+            this.mailboxEntries.push(entry);        
+
+            this.messageExchangeSvc.acknowledgeMessage(this.selectedSubscriber.meshMailboxId, record.messageID).then(() => {
+                this.checkingMailbox = false;
+                this.checkMailbox();
+            });
+        });
+    }
+
+    private stopMailbox(workflowIds: string[]) {
+        this.messageExchangeSvc.end(workflowIds);
+    }
+
+    private showEvent(event: any) {
+
+        this.eventLayout.activeEvent = event;
+        this.eventLayout.showEvent = true;
+        this.eventLayout.eventListClass = "col-xs-4 sub-minimal";
+        this.eventLayout.activeEventClass = {};
+        this.eventLayout.activeEventClass[event.id] = "warning";
+    }
+
+    private hideEvent() {
+
+        this.eventLayout.showEvent = false;
+        this.eventLayout.eventListClass = "col-xs-12";
+        this.eventLayout.activeEvent = {};
+        this.eventLayout.activeEventClass = {};
     }
 
     private showSubscription(sub: INemsSubscription) {
@@ -70,9 +189,9 @@ export class Subscriber {
 
         this.convertExample();
 
-        this.prepDeleteEvent();      
-
+        this.prepDeleteEvent(); 
     }
+
 
     public showNewSubscription() {
 
@@ -102,8 +221,6 @@ export class Subscriber {
         this.systemSvc.getSubscribers().then(subscribers => {
 
             this.subscribers = subscribers;   
-
-            //this.setSelectedSubscriber(subscribers[0]);
 
             this.loadingSubscribers = false;
         });
@@ -173,6 +290,15 @@ export class Subscriber {
 
         this.subscribeRequest.fromAsid = this.selectedSubscriber.asid;
 
+        $('#subscriberTabs a[href="#mySubscriptions"]').tab('show');
+        this.subscriberLayout.subscriptionViewActive = true;
+
+        this.mailboxEntries = [];
+        this.promptMailbox = false;
+        this.checkingMailbox = false;
+
+        this.initMailboxCheck();
+
         this.getSubscriptions();
 
         let odsCode = this.selectedSubscriber.odsCode || "";
@@ -203,7 +329,16 @@ export class Subscriber {
     private selectedSubscriberChanged(newValue: ISdsEntry, oldValue: ISdsEntry) {
         
         if (!newValue || (oldValue && newValue.odsCode === oldValue.odsCode)) {
+
+            if (oldValue) {
+                this.stopMailbox(oldValue.workflowIds);
+            }
+
             return true;
+        }
+
+        if (oldValue) {
+            this.stopMailbox(oldValue.workflowIds);
         }
 
         this.hideSubscription();

@@ -8,7 +8,8 @@
     "Interactions": [ "urn:nhs:names:services:clinicals-sync:SubscriptionsApiGet", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete" ],
     "Asid": "200000000115",
     "Thumbprint": "",
-    "MeshMailboxId": "SUB01_200000000115"
+    "MeshMailboxId": "SUB01_200000000115",
+    "WorkflowIds": [ "BIRTHNOTIFICATION_1", "CHANGEOFADDRESS_1", "CHANGEOFGP_1", "DEATHNOTIFICATION_1" ]
   },
   {
     "Id": "a3925886-74e9-4d92-bab6-1366b5bcf0b1",
@@ -19,7 +20,8 @@
     "Interactions": [ "urn:nhs:names:services:clinicals-sync:SubscriptionsApiGet", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete" ],
     "Asid": "200000000116",
     "Thumbprint": "",
-    "MeshMailboxId": "SUB02_20000000016"
+    "MeshMailboxId": "SUB02_20000000016",
+    "WorkflowIds": [ "BIRTHNOTIFICATION_1", "CHANGEOFGP_1", "DEATHNOTIFICATION_1" ]
   },
   {
     "Id": "ac12bfe9-d9fb-4c83-9aa2-ac7bf35e0820",
@@ -29,6 +31,7 @@
     "OdsCode": "PUB01",
     "Interactions": [ "urn:nhs:names:services:events:pds-birth-notification-1.Write", "urn:nhs:names:services:events:pds-change-of-address-1.Write", "urn:nhs:names:services:events:pds-change-of-gp-1.Write", "urn:nhs:names:services:events:pds-death-notification-1.Write" ],
     "Asid": "200000000118",
-    "Thumbprint": ""
+    "Thumbprint": "",
+    "MeshMailboxId": "SUB01_200000000118"
   }
 ]

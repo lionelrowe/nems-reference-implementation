@@ -20,12 +20,13 @@ namespace NEMS_API.Models.Core
 
         public List<SubscriptionCriteriaRule> SubscriptionCriteriaRules { get; set; }
 
+        //public bool SkipSubscriptionCriteria { get; set; }
 
-        public bool SkipSubscriptionCriteria { get; set; }
+        //public bool MessageHeaderValidationOnly { get; set; }
 
-        public bool MessageHeaderValidationOnly { get; set; }
+        //public bool SkipSpineGateWay { get; set; }
 
-        public bool SkipSpineGateWay { get; set; }
+        public ValidationOptions ValidationOptions { get; set; }
 
         public string PatientFile { get; set; }
 
@@ -54,6 +55,23 @@ namespace NEMS_API.Models.Core
         public string NhsNumberSystem { get; set; }
 
         public string OrganisationReferenceUrl { get; set; }
+
+        public string ExtensionRoutingDemographicsUrl { get; set; }
+    }
+
+    public class ValidationOptions
+    {
+        public bool SkipSubscriptionCriteria { get; set; }
+
+        public bool SkipSpineGateWay { get; set; }
+
+        public bool ValidateMessageHeaderOnly { get; set; }
+
+        public bool SkipSubscriptionMatching { get; set; }
+
+        public bool AcceptSupportedEventsOnly { get; set; }
+
+        public string ValidateMessageFromProfileUrl { get; set; }
     }
 
     public class KvList

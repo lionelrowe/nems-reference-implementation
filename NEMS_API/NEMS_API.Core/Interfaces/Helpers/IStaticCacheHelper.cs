@@ -1,4 +1,5 @@
 ﻿using NEMS_API.Models.Interfaces;
+using System;
 
 namespace NEMS_API.Core.Interfaces.Helpers
 {
@@ -11,6 +12,8 @@ namespace NEMS_API.Core.Interfaces.Helpers
         T AddEntry<T>(T entry) where T : IDataItem;
 
         T AddEntry<T>(T entry, string cacheKey);
+
+        T AddEntry<T>(T entry, string cacheKey, DateTimeOffset lifespan);
 
         T AddListItem<T>(T entry) where T : IDataItem, new();
         //Te AddCacheData<Tc, Te>(string key, Te entry) where Te : class, new() where Tc : class, new();
