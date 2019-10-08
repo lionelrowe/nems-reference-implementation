@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using NEMS_API.Models.Core;
+using NEMS_API.Models.MessageExchange;
 using System.Collections.Generic;
 
 namespace NEMS_API.Core.Interfaces.Services
@@ -13,5 +14,7 @@ namespace NEMS_API.Core.Interfaces.Services
         Resource CreateEvent(FhirRequest request);
 
         void DeleteEvent(FhirRequest request);
+
+        List<string> SubscriptionMatcher(SubscriptionMatchingCriteria criteria);
     }
 }

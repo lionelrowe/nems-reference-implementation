@@ -6,6 +6,8 @@ using NEMS_API.Core.Interfaces.Data;
 using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Models.Core;
 using NEMS_API.Models.FhirResources;
+using NEMS_API.Models.MessageExchange;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -62,7 +64,7 @@ namespace NEMS_API.Services
             var cache = GetClientCache(request.RequestingAsid);
 
             var nemsSubscription = new NemsSubscription(subscription);
-            nemsSubscription.RequesterOdsCode = cache.OdsCode;
+            nemsSubscription.RequesterOdsCode = cache?.OdsCode ?? "NOTFOUND";
             nemsSubscription.RequesterAsid = request.RequestingAsid;
 
             var customValidation = _fhirValidation.ValidSubscription(nemsSubscription);
@@ -101,6 +103,41 @@ namespace NEMS_API.Services
             
         }
 
+        public List<string> SubscriptionMatcher(SubscriptionMatchingCriteria criteria)
+        {
+            var workflowSubscribers = _sdsService.GetAll().Where(x => x.WorkflowIds.Contains(criteria.ActiveEventType.WorkflowID));
+
+            var ageDt = DateTime.Parse(criteria.BirthDate.Value);
+
+            var now = DateTime.UtcNow;
+
+            var age = now.Year - ageDt.Year;
+
+            // leap year check
+            if (ageDt > now.AddYears(-age))
+            {
+                age--;
+            }
+
+            var mailboxIds = new List<string>();
+
+            foreach (var sub in workflowSubscribers)
+            {
+                var subscriptions = _dataReader.Search(new NemsSubscription());
+
+                var clientSubscriptions = subscriptions.Where(x => x.RequesterAsid == sub.Asid && (_nemsApiSettings.ValidationOptions.SkipSubscriptionMatching || (x.CriteriaModel.PatientIdentifier == criteria.PatientIdentifier.ToUpperInvariant() && x.CriteriaModel.MessageHeaderEvents.Contains(criteria.ActiveEventType.Name.ToUpperInvariant()) && x.CriteriaModel.ValidAge(age))));
+
+
+                if (clientSubscriptions.Any())
+                {
+                    mailboxIds.Add(sub.MeshMailboxId);
+                }
+
+            }
+
+            return mailboxIds;
+        }
+
         private NemsSubscription ReadEventAsNems(FhirRequest request)
         {
             var item = new NemsSubscription
@@ -118,7 +155,7 @@ namespace NEMS_API.Services
             //This should never be null as it's checked in the middleware
             var cache = GetClientCache(request.RequestingAsid);
 
-            if (entry.RequesterAsid != cache.Asid)
+            if (cache == null || entry.RequesterAsid != cache.Asid)
             {
                 throw new HttpFhirException("Subscription asid mismatch", OperationOutcomeFactory.CreateAccessDenied(), HttpStatusCode.Forbidden);
             }

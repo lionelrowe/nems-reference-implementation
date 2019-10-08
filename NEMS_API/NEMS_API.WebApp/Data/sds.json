@@ -9,7 +9,7 @@
     "Asid": "200000000115",
     "Thumbprint": "",
     "MeshMailboxId": "SUB01_200000000115",
-    "WorkflowIds": [ "BIRTHNOTIFICATION_1", "CHANGEOFADDRESS_1", "CHANGEOFGP_1", "DEATHNOTIFICATION_1" ]
+    "WorkflowIds": [ "CHANGEOFGP_1", "GENERICEVENTTYPE_1" ]
   },
   {
     "Id": "a3925886-74e9-4d92-bab6-1366b5bcf0b1",
@@ -21,7 +21,7 @@
     "Asid": "200000000116",
     "Thumbprint": "",
     "MeshMailboxId": "SUB02_20000000016",
-    "WorkflowIds": [ "BIRTHNOTIFICATION_1", "CHANGEOFGP_1", "DEATHNOTIFICATION_1" ]
+    "WorkflowIds": [ "GENERICEVENTTYPE_1" ]
   },
   {
     "Id": "ac12bfe9-d9fb-4c83-9aa2-ac7bf35e0820",

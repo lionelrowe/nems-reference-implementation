@@ -14,11 +14,13 @@ namespace NEMS_API.Controllers
     public class PublisherController : Controller
     {
         private readonly IPublishService _publishService;
+        private readonly ISubscribeService _subscribeService;
         private readonly NemsApiSettings _nemsApiSettings;
 
-        public PublisherController(IOptions<NemsApiSettings> nemsApiSettings, IPublishService publishService)
+        public PublisherController(IOptions<NemsApiSettings> nemsApiSettings, IPublishService publishService, ISubscribeService subscribeService)
         {
             _publishService = publishService;
+            _subscribeService = subscribeService;
             _nemsApiSettings = nemsApiSettings.Value;
         }
 
@@ -39,16 +41,25 @@ namespace NEMS_API.Controllers
         {
             var request = FhirRequest.Create(null, resource, null, RequestingAsid());
 
-            var published = await _publishService.PublishEvent(request);   
+            var published = await _publishService.ValidateEvent(request);   
 
-            if (!published.Success)
+            if (published.ResourceType == ResourceType.Bundle)
             {
-                return BadRequest(published);
+                var bundle = published as Bundle;
+
+                var criteria = _publishService.GetSubscriptionMatchingCriteria(bundle);
+
+                var subscriberMailboxes = _subscribeService.SubscriptionMatcher(criteria);
+
+                _publishService.PublishEvent(bundle, subscriberMailboxes, criteria.ActiveEventType.WorkflowID);
+
+                return Accepted();
             }
 
             //TODO: depreciation warning
 
-            return Accepted();
+            
+            return BadRequest(published);
         }
 
         private string RequestingAsid()

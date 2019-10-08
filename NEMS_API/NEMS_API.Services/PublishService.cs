@@ -8,7 +8,6 @@ using NEMS_API.Core.Interfaces.Helpers;
 using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Core.Resources;
 using NEMS_API.Models.Core;
-using NEMS_API.Models.FhirResources;
 using NEMS_API.Models.MessageExchange;
 using System;
 using System.Collections.Generic;
@@ -45,13 +44,21 @@ namespace NEMS_API.Services
             _nemsApiSettings = nemsApiSettings.Value;
         }
 
-        public async SystemTasks.Task<OperationOutcome> PublishEvent(FhirRequest request)
+        public async SystemTasks.Task<Resource> ValidateEvent(FhirRequest request)
         {
             //## Core validation ##
 
             //Bundle
             var bundle = request.Resource as Bundle;
-            var basicValidationOnly = bundle.Meta?.Profile?.Contains(_nemsApiSettings.ValidationOptions.ValidateMessageFromProfileUrl) ?? _nemsApiSettings.ValidationOptions.ValidateMessageHeaderOnly;
+            var basicValidationOnly = _nemsApiSettings.ValidationOptions.ValidateMessageHeaderOnly;
+
+            if (bundle.Meta?.Profile?.Contains(_nemsApiSettings.ValidationOptions.ValidateMessageFromProfileUrl) == true)
+            {
+                basicValidationOnly = true;
+            }
+            
+            bundle.Id = Guid.NewGuid().ToString();
+
             var meta = bundle.Meta;
             bundle.Meta = meta ?? new Meta();
             bundle.Meta.Profile = new List<string> { _nemsApiSettings.ResourceUrl.BundleProfileUrl }; //reset profile
@@ -81,7 +88,7 @@ namespace NEMS_API.Services
 
             if(basicValidationOnly)
             {
-                return OperationOutcomeFactory.CreateOk();
+                return bundle;
             }
 
             //## NEMS validation ##
@@ -108,15 +115,6 @@ namespace NEMS_API.Services
                 var schemaMessage = $"Supplied bundle passed basic FHIR validation but event of type {eventType} is not currently supported.";
 
                 return OperationOutcomeFactory.CreateInvalidResource("MessageHeader.event.code", schemaMessage);
-            }
-
-            if(!_nemsApiSettings.ValidationOptions.AcceptSupportedEventsOnly && activeEventType == null)
-            {
-                activeEventType = new EventTypeConfig
-                {
-                    Name = "Generic-Event-Type-1",
-                    WorkflowID = "GENERICEVENTTYPE_1"
-                };
             }
 
             var schemaMessages = new List<string>();
@@ -165,56 +163,56 @@ namespace NEMS_API.Services
             }
 
             //We are valid
-            bundle.Id = Guid.NewGuid().ToString();
 
-            _dataWriter.Create(bundle, CacheKeys.NemsEventEntry(bundle.Id), _eventStoreExpiration);
+            return bundle;
+        }
+
+        public SubscriptionMatchingCriteria GetSubscriptionMatchingCriteria(Bundle bundle)
+        {
+            var header = FhirHelper.GetFirstEntryOfTypeProfile<MessageHeader>(bundle, _nemsApiSettings.ResourceUrl.HeaderProfileUrl);
+
+            var activeEventType = _nemsApiSettings.SupportedEventTypes.FirstOrDefault(e => e.Name == header.Event.Code);
+
+            if (!_nemsApiSettings.ValidationOptions.AcceptSupportedEventsOnly && activeEventType == null)
+            {
+                activeEventType = new EventTypeConfig
+                {
+                    Name = "Generic-Event-Type-1",
+                    WorkflowID = "GENERICEVENTTYPE_1"
+                };
+            }
 
             var pdsExtension = header.GetExtension(_nemsApiSettings.ResourceUrl.ExtensionRoutingDemographicsUrl);
             var patientIdentifier = pdsExtension.GetExtensionValue<Identifier>("nhsNumber");
-            var patientDob = pdsExtension.GetExtensionValue<FhirDateTime>("birthDateTime"); //.Extension.FirstOrDefault(e => e.Url == "birthDateTime").Value as FhirDateTime;
+            var patientDob = pdsExtension.GetExtensionValue<FhirDateTime>("birthDateTime");
 
-            SendToMailboxes($"{patientIdentifier.System}|{patientIdentifier.Value}", patientDob, activeEventType, bundle.Id);
+            var criteria = new SubscriptionMatchingCriteria
+            {
+                PatientIdentifier = $"{patientIdentifier.System}|{patientIdentifier.Value}",
+                BirthDate = patientDob,
+                ActiveEventType = activeEventType
+            };
 
-            _messageExchangeHelper.SyncRequest(activeEventType.WorkflowID);
-
-            return OperationOutcomeFactory.CreateOk();
+            return criteria;
         }
 
-        private void SendToMailboxes(string patientIdentifier, FhirDateTime birthDate, EventTypeConfig activeEventType, string id)
+        public void PublishEvent(Bundle bundle, List<string> mailboxIds, string workflowId)
         {
-            var workflowSubscribers = _sdsService.GetAll().Where(x => x.WorkflowIds.Contains(activeEventType.WorkflowID));
+            _dataWriter.Create(bundle, CacheKeys.NemsEventEntry(bundle.Id), _eventStoreExpiration);
 
-            var ageDt = DateTime.Parse(birthDate.Value);
-
-            var now = DateTime.UtcNow;
-
-            var age = now.Year - ageDt.Year;
-
-            // leap year check
-            if (ageDt > now.AddYears(-age))
+            foreach (var mailboxId in mailboxIds)
             {
-                age--;
-            }
-
-            foreach (var sub in workflowSubscribers)
-            {
-                var subscriptions = _dataReader.Search(new NemsSubscription());
-
-                var clientSubscriptions = subscriptions.Where(x => x.RequesterAsid == sub.Asid && ( _nemsApiSettings.ValidationOptions.SkipSubscriptionMatching || (x.CriteriaModel.PatientIdentifier == patientIdentifier.ToUpperInvariant() && x.CriteriaModel.MessageHeaderEvents.Contains(activeEventType.Name.ToUpperInvariant()) && x.CriteriaModel.ValidAge(age))));
-
-
-                if (clientSubscriptions.Any())
+                var dataItem = new InboxRecordIdentifier
                 {
-                    var dataItem = new InboxRecordIdentifier
-                    {
-                        Id = id,
-                        Data = sub.MeshMailboxId
-                    };
+                    Id = bundle.Id,
+                    Data = mailboxId
+                };
 
-                    _dataWriter.Create(dataItem, _eventStoreExpiration);
-                }
-
+                _dataWriter.Create(dataItem, _eventStoreExpiration);
             }
+
+            _messageExchangeHelper.SyncRequest(workflowId);
         }
+
     }
 }

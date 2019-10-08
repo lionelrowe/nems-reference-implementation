@@ -1,0 +1,13 @@
+version: '2'
+services:
+  nemsapiapp:
+    container_name: nemsapiapp
+    image: "${REGISTRY_PREFIX}nemsapi${IMAGE_TAG}"
+    ports:
+      - "8481:5002"
+    networks:
+      - nemsdemo-network
+
+networks:
+  nemsdemo-network:
+    driver: bridge
