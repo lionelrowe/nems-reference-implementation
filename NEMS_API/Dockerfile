@@ -11,7 +11,9 @@ RUN dotnet restore NEMS_API.WebApp/NEMS_API.WebApp.csproj
 
 #Start Front-end build
 WORKDIR /app/NEMS_API.WebApp
-RUN npm install
+RUN rm -rf /app/NEMS_API.WebApp/node_modules
+RUN npm install --global npm-install-que
+RUN npm-install-que
 RUN npm run build
 
 #Start Back-end build
