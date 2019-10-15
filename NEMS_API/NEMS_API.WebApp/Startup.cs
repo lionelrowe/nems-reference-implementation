@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,10 +12,8 @@ using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Data;
 using NEMS_API.Models.Core;
 using NEMS_API.Services;
-using NEMS_API.WebApp.Core.Filters;
 using NEMS_API.WebApp.Core.Formatters;
 using NEMS_API.WebApp.Core.Middlewares;
-using Swashbuckle.AspNetCore.Swagger;
 using NEMS_API.Core.Hubs;
 
 namespace NEMS_API
@@ -63,26 +54,6 @@ namespace NEMS_API
                 config.InputFormatters.Insert(0, new WebApp.Core.Formatters.JsonInputFormatter());
                 config.OutputFormatters.Insert(0, new WebApp.Core.Formatters.JsonOutputFormatter());
             });
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info
-                {
-                    Version = "v1",
-                    Title = "NEMS API Reference Implementation",
-                    Description = "A reference implementation of the NEMS API which conforms to the NEMS Technical Specification.",
-                    Contact = new Contact()
-                    {
-                        Name = "NEMS Team",
-                        Email = "nems@nhs.net"
-                    }
-                });
-             
-                //https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-2.0&tabs=visual-studio
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-                c.OperationFilter<ParameterContentTypeOperationFilter>();
-            });
 
             services.AddSignalR();
             services.AddOptions();
@@ -104,16 +75,6 @@ namespace NEMS_API
             services.AddTransient<ISchemaValidationHelper, SchemaValidationHelper>();
             services.AddTransient<IMessageExchangeHelper, MessageExchangeHelper>();
             services.AddTransient<IMessageExchangeService, MessageExchangeService>();
-        }
-
-        private List<string> SetList(string configVal)
-        {
-            if(!string.IsNullOrEmpty(configVal))
-            {
-                return configVal.Split(",").ToList();
-            }
-
-            return new List<string>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -138,17 +99,6 @@ namespace NEMS_API
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c => {
-                c.RoutePrefix = string.Empty;
-                c.SwaggerEndpoint("/nems-ri/swagger/v1/swagger.json", "NEMS Reference Implementation");
-                //c.InjectStylesheet("/static/swagger/ui/custom.css");
-                c.DefaultModelsExpandDepth(-1);
-                c.EnableDeepLinking();
-                //c.IndexStream = () => File.OpenText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "static", "swagger", "ui", "index.html")).BaseStream;
-                c.DocumentTitle = "NEMS API Reference Implementation - Explore with Swagger";
-            });
 
             app.UseSignalR(routes =>
             {

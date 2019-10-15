@@ -6,7 +6,6 @@ using NEMS_API.Core.Interfaces.Services;
 using NEMS_API.Core.Resources;
 using NEMS_API.Models.Core;
 using NEMS_API.WebApp.Core.Filters;
-using NEMS_API.WebApp.Core.Filters.Attributes;
 
 namespace NEMS_API.Controllers
 {
@@ -33,8 +32,6 @@ namespace NEMS_API.Controllers
         /// <response code="400">FHIR Operation Outcome</response> 
         [ProducesResponseType(202)]
         [ProducesResponseType(typeof(OperationOutcome), 400)]
-        [SwaggerParameterContentType(name: "resource", contentType: "application/fhir+xml", description: "A EMS-Bundle-1 FHIR Bundle", exampleUrl: "examples/nems-bundle-1-example.xml", required: true)]
-        [SwaggerParameterContentType(name: "resource", contentType: "application/fhir+json", description: "A EMS-Bundle-1 FHIR Bundle", exampleUrl: "examples/nems-bundle-1-example.json", required: true)]
         [FhirFormatterValidation]
         [HttpPost("$process-message")]
         public async Task<IActionResult> Post([FromBody] Resource resource)
