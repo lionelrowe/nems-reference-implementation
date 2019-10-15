@@ -9,16 +9,20 @@ namespace NEMS_API.Controllers.AppUtilities
     public class AppUtilsSubscriptionController : Controller
     {
         private readonly ISubscribeService _subscribeService;
-        
-        public AppUtilsSubscriptionController(ISubscribeService subscribeService)
+        private readonly IPublishService _publishService;
+        private readonly IMessageExchangeService _messageExchangeService;
+
+        public AppUtilsSubscriptionController(ISubscribeService subscribeService, IPublishService publishService, IMessageExchangeService messageExchangeService)
         {
             _subscribeService = subscribeService;
+            _publishService = publishService;
+            _messageExchangeService = messageExchangeService;
         }
 
-        [HttpGet("{asid}")]
-        public IActionResult GetSubscriptionsByAsid(string asid)
+        [HttpGet("{asid:long}")]
+        public IActionResult GetSubscriptionsByAsid(long asid)
         {
-            var request = FhirRequest.Create(null, null, null, asid);
+            var request = FhirRequest.Create(null, null, null, $"{asid}");
 
             var subscriptions = _subscribeService.SearchEvent(request);
 
@@ -29,6 +33,23 @@ namespace NEMS_API.Controllers.AppUtilities
             var bundle = FhirHelper.GetAsSearchset(subscriptions, subscriptionPath, $"{basePath}{Request.Path}");
 
             return Ok(bundle);
+        }
+
+        [HttpGet("MessageMatch/{messageId}")]
+        public IActionResult GetSubscribersOfMessage(string messageId)
+        {
+            var bundle = _messageExchangeService.GetMessage(messageId);
+
+            if(bundle == null)
+            {
+                return NotFound($"Event Message with id {messageId} was not found.");
+            }
+
+            var criteria = _publishService.GetSubscriptionMatchingCriteria(bundle);
+
+            var subscriberMailboxes = _subscribeService.SubscriptionMatcher(criteria);
+
+            return Ok(subscriberMailboxes);
         }
 
     }

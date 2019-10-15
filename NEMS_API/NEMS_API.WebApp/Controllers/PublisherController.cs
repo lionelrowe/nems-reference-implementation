@@ -53,6 +53,8 @@ namespace NEMS_API.Controllers
 
                 _publishService.PublishEvent(bundle, subscriberMailboxes, criteria.ActiveEventType.WorkflowID);
 
+                HttpContext.Response.Headers.Add("x-EventMessageId", bundle.Id);
+
                 return Accepted();
             }
 

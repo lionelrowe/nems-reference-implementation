@@ -17,8 +17,8 @@ export class SubscriptionUtilsSvc {
     constructor(private api: WebAPI, private fhirSvc: FhirSvc) { }
 
     /**
-     * Requests a new example based on selected Patient and Event Message Type.
-     * @returns A FHIR Bundle of type Message.
+     * Requests a subscribers subscritions based on their ASID.
+     * @returns A FHIR Bundle containing subscriptions.
      */
     getSubscriptions(request: IRequest) {
 
@@ -33,6 +33,16 @@ export class SubscriptionUtilsSvc {
         return subscriptions;
     }
 
+    /**
+     * Requests a MESH mailbox ids that would of recieved a message.
+     * @returns An array of MESH mailbox ids.
+     */
+    getSubscribersOfMessage(messageId: string) {
+
+        let mailboxIds = this.api.do<string[]>({ url: `${this.baseUrl}/MessageMatch/${messageId}${this.query}`, method: 'get' } as IHttpRequest);
+
+        return mailboxIds;
+    }
    
 
 }

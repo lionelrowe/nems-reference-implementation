@@ -149,7 +149,7 @@ Authorization: Bearer ${subscribeRequest.jwt}
                         <div class="row">
 
                             <div class.bind="eventLayout.eventListClass">
-                                <p show.bind="selectedSubscriber && (!mailboxEntries || mailboxEntries.length === 0)">No messages found for ${selectedSubscriber.meshMailboxId}</p>
+                                <p show.bind="selectedSubscriber && (!mailboxEntries || mailboxEntries.length === 0)">No messages found for ${selectedSubscriber.meshMailboxId}. Publish an <a route-href="route: publisher;">event message</a> that matches your subscriptions.</p>
 
                                 <table class="table table-striped" show.bind="selectedSubscriber && mailboxEntries && mailboxEntries.length > 0">
                                     <thead>

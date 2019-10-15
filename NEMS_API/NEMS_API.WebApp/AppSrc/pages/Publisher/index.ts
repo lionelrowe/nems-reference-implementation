@@ -12,8 +12,9 @@ import { HttpRequest } from "../../core/models/HttpRequest";
 import { PublishSvc } from "../../core/services/PublishService";
 import { JwtSvc } from "../../core/services/JwtService";
 import { IHttpResponse } from "../../core/interfaces/IHttpResponse";
+import { SubscriptionUtilsSvc } from "../../core/services/SubscriptionUtilsService";
 
-@inject(PatientSvc, ExampleSvc, ListSvc, SystemSvc, JwtSvc, PublishSvc)
+@inject(PatientSvc, ExampleSvc, ListSvc, SystemSvc, JwtSvc, PublishSvc, SubscriptionUtilsSvc)
 export class Publisher {
 
     heading: string = 'Publisher App';
@@ -40,11 +41,14 @@ export class Publisher {
 
     response?: IHttpResponse<any>;
 
+    receiverMailboxIds: string[];
+
     @observable
     selectedExampleMessageFormat: IKeyValuePair;
     
 
-    constructor(private patientSvc: PatientSvc, private exampleSvc: ExampleSvc, private listSvc: ListSvc, private systemSvc: SystemSvc, private jwtSvc: JwtSvc, private publishSvc: PublishSvc) {
+    constructor(private patientSvc: PatientSvc, private exampleSvc: ExampleSvc, private listSvc: ListSvc, private systemSvc: SystemSvc,
+        private jwtSvc: JwtSvc, private publishSvc: PublishSvc, private subUtilsSvc: SubscriptionUtilsSvc) {
 
         //this.getPatients();
 
@@ -126,6 +130,17 @@ export class Publisher {
 
             if (typeof res.body == "object") {
                 res.body = JSON.stringify(res.body, null, 2);
+            }
+
+            if (res.headers["x-eventmessageid"]) {
+                
+                let eventMessageId = res.headers["x-eventmessageid"];
+
+                delete res.headers["x-eventmessageid"];
+
+                this.subUtilsSvc.getSubscribersOfMessage(eventMessageId).then(ids => {
+                    this.receiverMailboxIds = ids;
+                });
             }
 
             this.response = res;
