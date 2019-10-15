@@ -27,8 +27,11 @@ const when = (condition, config, negativeConfig) =>
   
 module.exports = ({ production, server, extractCss, coverage } = {}) => ({
       resolve: {
-        extensions: ['.ts', '.js'],
-        modules: ['AppSrc', 'node_modules']
+          extensions: ['.ts', '.js'],
+          modules: ['AppSrc', 'node_modules'],
+          alias: {
+              'aurelia-templating': path.resolve(__dirname, 'node_modules', 'aurelia-templating')
+          }
       },
       entry: ['aurelia-bootstrapper'],
       output: {

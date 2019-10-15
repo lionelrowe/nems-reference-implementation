@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
     <PackageReference Include="Moq" Version="4.12.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
@@ -18,12 +19,6 @@
     <ProjectReference Include="..\NEMS_API.Core\NEMS_API.Core.csproj" />
     <ProjectReference Include="..\NEMS_API.Models\NEMS_API.Models.csproj" />
     <ProjectReference Include="..\NEMS_API.Services\NEMS_API.Services.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Options">
-      <HintPath>..\..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.options\2.0.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

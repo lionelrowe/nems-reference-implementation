@@ -2,8 +2,6 @@
 
 export function configure(config) {
     config.globalResources([
-        PLATFORM.moduleName('./keys'),
-        PLATFORM.moduleName('./uppercase'),
-        PLATFORM.moduleName('./substr')
+        PLATFORM.moduleName('./nav-bar.html')
     ]);
 }

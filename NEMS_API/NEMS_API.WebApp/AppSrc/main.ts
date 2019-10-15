@@ -11,8 +11,9 @@ Bluebird.config({ warnings: { wForgottenReturn: false } });
 export async function configure(au: Aurelia) {
     au.use.standardConfiguration()
         .developmentLogging()
+        .plugin(PLATFORM.moduleName('core/helpers/loaders'))
         .plugin(PLATFORM.moduleName('core/helpers/converters'))
-        .plugin(PLATFORM.moduleName('core/helpers/loaders'));
+        .plugin(PLATFORM.moduleName('core/includes'));
 
     await au.start().then(a => {
         a.setRoot(PLATFORM.moduleName('app'));

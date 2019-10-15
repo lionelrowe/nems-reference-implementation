@@ -19,6 +19,7 @@
     <None Remove="AppSrc\app.ts" />
     <None Remove="AppSrc\core\helpers\converters\index.ts" />
     <None Remove="AppSrc\core\helpers\converters\keys.ts" />
+    <None Remove="AppSrc\core\helpers\converters\substr.ts" />
     <None Remove="AppSrc\core\helpers\converters\uppercase.ts" />
     <None Remove="AppSrc\core\interfaces\IEndPoints.ts" />
     <None Remove="AppSrc\core\interfaces\IExampleOptions.ts" />
@@ -26,6 +27,7 @@
     <None Remove="AppSrc\core\interfaces\IHttpResponse.ts" />
     <None Remove="AppSrc\core\interfaces\IInboxRecord.ts" />
     <None Remove="AppSrc\core\interfaces\IKeyValuePair.ts" />
+    <None Remove="AppSrc\core\interfaces\IMailbox.ts" />
     <None Remove="AppSrc\core\interfaces\IRequest.ts" />
     <None Remove="AppSrc\core\interfaces\ISdsEntry.ts" />
     <None Remove="AppSrc\core\IPatient.ts" />
@@ -34,9 +36,11 @@
     <None Remove="AppSrc\core\services\FhirService.ts" />
     <None Remove="AppSrc\core\services\JwtService.ts" />
     <None Remove="AppSrc\core\services\ListService.ts" />
+    <None Remove="AppSrc\core\services\MailboxService.ts" />
     <None Remove="AppSrc\core\services\MessageExchangeService.ts" />
     <None Remove="AppSrc\core\services\PatientService.ts" />
     <None Remove="AppSrc\core\services\PublishService.ts" />
+    <None Remove="AppSrc\core\services\StorageService.ts" />
     <None Remove="AppSrc\core\services\SubscribeService.ts" />
     <None Remove="AppSrc\core\services\SubscriptionUtilsService.ts" />
     <None Remove="AppSrc\core\services\SystemService.ts" />
@@ -46,10 +50,26 @@
     <None Remove="AppSrc\pages\Home\index.ts" />
     <None Remove="Data\definitions.xml.zip" />
     <None Remove="AppSrc\main.ts" />
+    <None Remove="Data\examples\pds-change-of-gp-1.xml" />
+    <None Remove="Data\examples\subscription-patient-9912003888.xml" />
+    <None Remove="Data\reference\CodeSystem\EventType-1.xml" />
+    <None Remove="Data\reference\ValueSet\EventType-1.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Data\definitions.xml.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\examples\pds-change-of-gp-1.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\examples\subscription-patient-9912003888.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\reference\CodeSystem\EventType-1.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\reference\ValueSet\EventType-1.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -87,7 +107,9 @@
     <TypeScriptCompile Include="AppSrc\app.ts" />
     <TypeScriptCompile Include="AppSrc\core\helpers\converters\index.ts" />
     <TypeScriptCompile Include="AppSrc\core\helpers\converters\keys.ts" />
+    <TypeScriptCompile Include="AppSrc\core\helpers\converters\substr.ts" />
     <TypeScriptCompile Include="AppSrc\core\helpers\converters\uppercase.ts" />
+    <TypeScriptCompile Include="AppSrc\core\interfaces\IMailbox.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IEndPoints.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IHttpResponse.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\IInboxRecord.ts" />
@@ -98,6 +120,8 @@
     <TypeScriptCompile Include="AppSrc\core\interfaces\IRequest.ts" />
     <TypeScriptCompile Include="AppSrc\core\interfaces\ISdsEntry.ts" />
     <TypeScriptCompile Include="AppSrc\core\models\HttpRequest.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\MailboxService.ts" />
+    <TypeScriptCompile Include="AppSrc\core\services\StorageService.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\JwtService.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\MessageExchangeService.ts" />
     <TypeScriptCompile Include="AppSrc\core\services\SubscribeService.ts" />
@@ -113,6 +137,33 @@
     <TypeScriptCompile Include="AppSrc\pages\Subscriber\index.ts" />
     <TypeScriptCompile Include="AppSrc\pages\Publisher\index.ts" />
     <TypeScriptCompile Include="AppSrc\pages\Home\index.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Data\patients.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\rules\pds-change-of-gp-1.Communication.schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\rules\pds-change-of-gp-1.EpisodeOfCare.schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\rules\pds-change-of-gp-1.HealthcareService.schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\rules\pds-change-of-gp-1.MessageHeader.schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\rules\pds-change-of-gp-1.Organization.schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\rules\pds-change-of-gp-1.Patient.schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\sds.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

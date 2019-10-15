@@ -64,7 +64,8 @@
                                             <td class="sub-status">${sub.status}</td>
                                             <td class="sub-endpoint">${sub.channel.endpoint}</td>
                                             <td class="sub-action">
-                                                <button class="btn btn-default" click.delegate="showSubscription(sub)">View <span>Subscription</span></button>
+                                                <i class="fa fa-caret-right"></i>
+                                                <button class="btn btn-default sub-view" click.delegate="showSubscription(sub)">View Subscription</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -75,7 +76,7 @@
                                     <h3>
                                         <span show.bind="subscriberLayout.creating">New Subscription</span>
                                         <span show.bind="!subscriberLayout.creating">Subscription Details</span> 
-                                        <button click.delegate="hideSubscription()" class="btn btn-default pull-right">Hide Subscription</button>
+                                        <button click.delegate="hideSubscription()" class="btn btn-warning pull-right">Hide Subscription</button>
                                     </h3>
 
                                     <form>
@@ -127,7 +128,7 @@ Authorization: Bearer ${subscribeRequest.jwt}
                                         <div class="row">
                                             <div class="col-xs-4">
                                                 <button type="submit" disabled.bind="!response && subscribeRequest.running" click.trigger="send()" class="btn ${subscriberLayout.creating ? 'btn-success' : 'btn-danger'}">
-                                                    ${subscriberLayout.creating ? "Create " + (response ? "another ": "") : "Delete" }Subscription
+                                                    ${subscriberLayout.creating ? "Create " + (response ? "another ": "") : "Delete " }Subscription
                                                 </button>
                                             </div>
                                             <div class="col-xs-4">
@@ -154,16 +155,22 @@ Authorization: Bearer ${subscribeRequest.jwt}
                                     <thead>
                                         <tr>
                                             <th class="sub-id">Message ID</th>
+                                            <th class="sub-status">Event Type</th>
                                             <th class="sub-criteria">Message Preview</th>
                                             <th class="sub-action">&nbsp;</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr repeat.for="entry of mailboxEntries"  class.bind="eventLayout.activeEventClass[entry.id]">
-                                            <td class="sub-id">${entry.id}</td>
-                                            <td class="sub-criteria">${entry.preview}</td>
+                                        <tr repeat.for="entry of mailboxEntries"  class.bind="eventLayout.activeEventClass[entry.messageId]">
+                                            <td class="sub-id">${entry.messageId}</td>
+                                            <td class="sub-status">${entry.type}</td>
+                                            <td class="sub-criteria">${entry.message | substr:0:80}</td>
                                             <td class="sub-action">
-                                                <button class="btn btn-default" click.delegate="showEvent(entry)">View <span>Entry</span></button>
+                                                <i class="fa fa-caret-right"></i>
+                                                <div class="btn-group sub-view" role="group">
+                                                    <button class="btn btn-primary" click.delegate="showEvent(entry)">View</button>
+                                                    <button class="btn btn-danger" click.delegate="removeEvent(entry.messageId)"><i class="fa fa-trash-o"></i></button>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -172,16 +179,21 @@ Authorization: Bearer ${subscribeRequest.jwt}
 
                             <div class="col-xs-8" show.bind="eventLayout.showEvent">
                                 <div class="container-fluid">
-                                    <h3>Event Details <button click.delegate="hideEvent()" class="btn btn-default pull-right">Hide Event</button></h3>
+                                    <h3>Event Details <button click.delegate="hideEvent()" class="btn btn-warning pull-right">Hide Event</button></h3>
 
                                     <div class="form-group">
                                         <label for="messageFormat">Message ID</label>
-                                        <input type="text" class="form-control" name="eventMessageId" value.bind="eventLayout.activeEvent.id" readonly />
+                                        <input type="text" class="form-control" name="eventMessageId" value.bind="eventLayout.activeEvent.messageId" readonly />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="messageFormat">Event Type</label>
+                                        <input type="text" class="form-control" name="eventType" value.bind="eventLayout.activeEvent.type" readonly />
                                     </div>
 
                                     <label for="Endpoint">Event Message Body</label>
                                     <div class="well well-content-break">
-                                        <pre class="examples">${eventLayout.activeEvent.body}</pre>
+                                        <pre class="examples">${eventLayout.activeEvent.message}</pre>
                                     </div>
                                 </div>
                             </div>

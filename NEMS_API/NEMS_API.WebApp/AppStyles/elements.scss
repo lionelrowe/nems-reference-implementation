@@ -1,12 +1,38 @@
-﻿.sub-minimal {
-    .sub-criteria, .sub-status, .sub-endpoint, .sub-action>button>span {
+﻿.sub-action {
+    .fa-caret-right {
+        display:none;
+    }
+}
+
+.sub-minimal {
+    .sub-criteria, .sub-status, .sub-endpoint, .sub-view {
         display: none;
+    }
+
+    .active {
+        .sub-action {
+            position: relative;
+            top: 0;
+            left: 0;
+
+
+            .fa-caret-right {
+                position: absolute;
+                right: -18px;
+                top: 0;
+                font-size: 63px;
+                line-height: 35px;
+                color: #fcf8e3;
+                text-shadow: 2px 0px 1px #ddd;
+                display: inline;
+            }
+        }
     }
 }
 
 .nav-tabs {
-    &.well-tabs{
-        >li{
+    &.well-tabs {
+        > li {
             margin-bottom: -3px;
         }
     }
