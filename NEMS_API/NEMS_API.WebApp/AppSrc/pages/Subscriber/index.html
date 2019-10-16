@@ -167,10 +167,8 @@ Authorization: Bearer ${subscribeRequest.jwt}
                                             <td class="sub-criteria">${entry.message | substr:0:80}</td>
                                             <td class="sub-action">
                                                 <i class="fa fa-caret-right"></i>
-                                                <div class="btn-group sub-view" role="group">
-                                                    <button class="btn btn-primary" click.delegate="showEvent(entry)">View</button>
-                                                    <button class="btn btn-danger" click.delegate="removeEvent(entry.messageId)"><i class="fa fa-trash-o"></i></button>
-                                                </div>
+                                                <button class="btn btn-primary" click.delegate="showEvent(entry)">View</button>
+                                                <button class="btn btn-danger" click.delegate="removeEvent(entry.messageId)"><i class="fa fa-trash-o"></i></button>
                                             </td>
                                         </tr>
                                     </tbody>

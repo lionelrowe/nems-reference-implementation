@@ -64,16 +64,21 @@ Authorization: Bearer ${publishRequest.jwt}
                 </div>
 
                 <label for="Endpoint">Message Receiver Mailboxes</label>
+                <div class="alert alert-warning" role="alert">
+                    <p><i class="fa fa-exclamation-triangle text-warning"></i> Publishers who publish messages using the NEMS do not get notification of which organisations or mailboxes will receieve their message.</p>
+                    <p>We have included it here though to help demonstrate the concept that a variety of mailboxes may receive messages sent using the NEMS.</p>
+                </div>
+
                 <div class="well">
                     <p show.bind="!receiverMailboxIds || receiverMailboxIds.length === 0"><i class="fa fa-exclamation-triangle text-warning"></i> No Subscribers for this message are listed. Create a <a route-href="route: subscriber;">subscription</a> for the correct criteria.</p>
-                    
+
                     <div show.bind="receiverMailboxIds && receiverMailboxIds.length > 0">
                         <p>The following subscriber MESH mail boxes will receive sent message.</p>
                         <ul class="fa-ul">
                             <li repeat.for="id of receiverMailboxIds"><i class="fa-li fa fa-check text-success"></i>${id}</li>
                         </ul>
                     </div>
-                 </div>
+                </div>
             </div>
             <div class="row">
                 <div class="col-xs-2">
